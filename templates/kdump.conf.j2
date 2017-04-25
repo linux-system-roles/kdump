@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+# Last modified: {{ ansible_date_time.date }} {{ ansible_date_time.time }}
+
+{% if dump_target %}
+{{dump_target.kind}} {{dump_target.location}}
+{% endif %}
+path {{path}}
+{% if core_collector %}
+core_collector {{core_collector}}
+{% endif %}
+default {{action}}

@@ -1,0 +1,5 @@
+---
+dump_target: null
+path: /var/crash
+core_collector: null
+action: reboot
