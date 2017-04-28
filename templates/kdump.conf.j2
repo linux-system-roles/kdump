@@ -2,10 +2,10 @@
 # Last modified: {{ ansible_date_time.date }} {{ ansible_date_time.time }}
 
 {% if dump_target %}
-{{dump_target.kind}} {{dump_target.location}}
+{{ dump_target.kind }} {{ dump_target.location }}
 {% endif %}
-path {{path}}
+path {{ path }}
 {% if core_collector %}
-core_collector {{core_collector}}
+core_collector {{ core_collector }}
 {% endif %}
-default {{action}}
+default {{ system_action }}
