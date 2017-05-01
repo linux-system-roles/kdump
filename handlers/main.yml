@@ -1,3 +1,5 @@
 ---
 - name: restart kdump
-  service: name=kdump state=restarted
+  service:
+    name: kdump
+    state: restarted
