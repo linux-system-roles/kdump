@@ -45,7 +45,7 @@ path in the root file system.
 **core_collector**: A command to copy the vmcore. If null, uses `makedumpfile`
 with options depending on the `target_type`.
 
-**action**:
+**system_action**:
   The action that is performed when dumping the core file fails. Can be
   `reboot`, `halt`, `poweroff`, or `shell`.
 
