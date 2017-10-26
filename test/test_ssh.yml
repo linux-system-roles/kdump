@@ -1,0 +1,12 @@
+
+- name: Ensure that the rule runs with default parameters
+  hosts: all
+  vars:
+    ssh_dump_user: root
+    ssh_dump_server: 192.168.124.1
+    dump_target:
+      kind: ssh
+      location: "{{ ssh_dump_user }}@{{ ssh_dump_server }}"
+
+  roles:
+    - kdump
