@@ -9,7 +9,9 @@
   register: kexec_crash_size
 
 - include_tasks: ssh.yml
-  when: dump_target.kind == "ssh"
+  when:
+    - dump_target
+    - dump_target.kind == "ssh"
 
 - name: Generate /etc/kdump.conf
   template:
