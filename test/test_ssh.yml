@@ -1,12 +1,32 @@
 
-- name: Ensure that the rule runs with default parameters
+- name: Ensure that the rule runs with ssh
   hosts: all
   vars:
-    ssh_dump_user: root
-    ssh_dump_server: 192.168.124.1
-    dump_target:
-      kind: ssh
-      location: "{{ ssh_dump_user }}@{{ ssh_dump_server }}"
+    # this is the outside address under which the ssh dump server is
+    # known and ansible is supposed to be configured to be able to
+    # connect to it (via inventory).
+    ssh_dump_server_outside: localhost
 
-  roles:
-    - kdump
+  tasks:
+    - name: gather facts from {{ ssh_dump_server_outside }}
+      setup:
+      delegate_to: "{{ ssh_dump_server_outside }}"
+      delegate_facts: True
+
+    - include_role:
+        name: kdump
+      vars:
+        ssh_dump_user: "{{ hostvars[ssh_dump_server_outside]['ansible_user_id'] }}"
+        # This is the outside address. Ansible will connect to it to
+        # copy the ssh key.
+        ssh_dump_server: "{{ ssh_dump_server_outside }}"
+        path: /tmp/test
+        dump_target:
+          kind: ssh
+          # This is the ssh dump server address visible from inside
+          # the machine being configured. Dumps are to be copied
+          # there. We make here the assumption that this machine is
+          # being run as a VM and the dump server is the VM host
+          # (i.e. for ansible this is localhost). From the VM its
+          # address is then identical to the default route.
+          location: "{{ ssh_dump_user }}@{{ ansible_default_ipv4.gateway }}"
