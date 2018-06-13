@@ -3,3 +3,6 @@ dump_target: null
 path: /var/crash
 core_collector: null
 system_action: reboot
+ssh_dump_user: null
+ssh_dump_server: null
+sshkey: /root/.ssh/kdump_id_rsa

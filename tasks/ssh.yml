@@ -1,0 +1,17 @@
+---
+- stat: path="{{ sshkey }}"
+  register: sshkey_stats
+
+- command: "/usr/bin/ssh-keygen -t rsa -f {{ sshkey }} -N '' "
+  when: sshkey_stats.stat.exists == False
+
+- name: cat file to register
+  shell: cat {{ sshkey }}.pub
+  register: keydata
+
+- name:
+  authorized_key:
+    user: "{{ ssh_dump_user }}"
+    key: "{{ keydata.stdout }}"
+    state: present
+  delegate_to: "{{ ssh_dump_server }}"
