@@ -2,7 +2,7 @@
 # Last modified: {{ ansible_date_time.date }} {{ ansible_date_time.time }}
 
 {% if dump_target %}
-{{ dump_target.kind }} {{ dump_target.location }}
+{{ dump_target.type }} {{ dump_target.location }}
 {% endif %}
 
 {% if dump_target and dump_target.kind == "ssh" and sshkey != '/root/.ssh/kdump_id_rsa' %}
