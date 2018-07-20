@@ -22,7 +22,7 @@
         ssh_dump_server: "{{ ssh_dump_server_outside }}"
         path: /tmp/test
         dump_target:
-          kind: ssh
+          type: ssh
           # This is the ssh dump server address visible from inside
           # the machine being configured. Dumps are to be copied
           # there. We make here the assumption that this machine is
