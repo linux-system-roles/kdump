@@ -1,16 +1,16 @@
 # {{ ansible_managed }}
 # Last modified: {{ ansible_date_time.date }} {{ ansible_date_time.time }}
 
-{% if dump_target %}
-{{ dump_target.type }} {{ dump_target.location }}
+{% if kdump_target %}
+{{ kdump_target.type }} {{ kdump_target.location }}
 {% endif %}
 
-{% if dump_target and dump_target.kind == "ssh" and sshkey != '/root/.ssh/kdump_id_rsa' %}
-sshkey {{ sshkey }}
+{% if kdump_target and kdump_target.kind == "ssh" and kdump_sshkey != '/root/.ssh/kdump_id_rsa' %}
+sshkey {{ kdump_sshkey }}
 {% endif %}
 
-path {{ path }}
-{% if core_collector %}
-core_collector {{ core_collector }}
+path {{ kdump_path }}
+{% if kdump_core_collector %}
+core_collector {{ kdump_core_collector }}
 {% endif %}
-default {{ system_action }}
+default {{ kdump_system_action }}

@@ -1,17 +1,17 @@
 ---
-- stat: path="{{ sshkey }}"
+- stat: path="{{ kdump_sshkey }}"
   register: sshkey_stats
 
-- command: "/usr/bin/ssh-keygen -t rsa -f {{ sshkey }} -N '' "
+- command: "/usr/bin/ssh-keygen -t rsa -f {{ kdump_sshkey }} -N '' "
   when: sshkey_stats.stat.exists == False
 
 - name: cat file to register
-  shell: cat {{ sshkey }}.pub
+  shell: cat {{ kdump_sshkey }}.pub
   register: keydata
 
 - name:
   authorized_key:
-    user: "{{ ssh_dump_user }}"
+    user: "{{ kdump_ssh_user }}"
     key: "{{ keydata.stdout }}"
     state: present
-  delegate_to: "{{ ssh_dump_server }}"
+  delegate_to: "{{ kdump_ssh_server }}"
