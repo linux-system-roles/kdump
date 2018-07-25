@@ -10,8 +10,8 @@
 
 - include_tasks: ssh.yml
   when:
-    - dump_target
-    - dump_target.type == "ssh"
+    - kdump_target
+    - kdump_target.type == "ssh"
 
 - name: Generate /etc/kdump.conf
   template:
