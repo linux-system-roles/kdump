@@ -38,6 +38,9 @@ Similarly for `nfs`, `location` points to an nfs server:
   location: nfs.example.com
 ```
 
+Only the `ssh` type is considered stable, support for the other types
+is experimental.
+
 **kdump_path**: The path to which vmcore will be written. If `kdump_target` is not
 null, path is relative to that dump target. Otherwise, it must be an absolute
 path in the root file system.
