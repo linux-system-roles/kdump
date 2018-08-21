@@ -1,12 +1,12 @@
 galaxy_info:
   author: Baoquan He <bhe@redhat.com>
   description: Configure kdump
-  galaxy_tags: [ 'system', 'beta' ]
+  galaxy_tags: [ 'system', 'kdump', 'redhat', 'rhel', 'fedora', 'centos' ]
   company: Red Hat, Inc.
   license: MIT
-  min_ansible_version: 2.2
+  min_ansible_version: 2.4
   platforms:
   - name: Fedora
-    versions: [ 24, 25 ]
+    versions: [ 27, 28 ]
   - name: EL
     versions: [ 6, 7 ]
