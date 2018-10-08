@@ -4,7 +4,7 @@
 {{ kdump_target.type }} {{ kdump_target.location }}
 {% endif %}
 
-{% if kdump_target and kdump_target.kind == "ssh" and kdump_sshkey != '/root/.ssh/kdump_id_rsa' %}
+{% if kdump_target and kdump_target.type == "ssh" and kdump_sshkey != '/root/.ssh/kdump_id_rsa' %}
 sshkey {{ kdump_sshkey }}
 {% endif %}
 
