@@ -5,6 +5,18 @@
     # known and ansible is supposed to be configured to be able to
     # connect to it (via inventory).
     kdump_ssh_server_outside: localhost
+    kdump_ssh_source: "{{ ansible_env['SSH_CONNECTION'].split()[0] }}"
+
+    # this is the address at which the ssh dump server can be reached
+    # from the managed host. Dumps will be uploaded there.
+    kdump_ssh_server_inside: >-
+      {{
+      kdump_ssh_source if kdump_ssh_source in
+      hostvars[kdump_ssh_server_outside]['ansible_all_ipv4_addresses']
+      + hostvars[kdump_ssh_server_outside]['ansible_all_ipv6_addresses']
+      else
+      hostvars[kdump_ssh_server_outside]['ansible_default_ipv4']['address']
+      }}
 
   tasks:
     - name: gather facts from {{ kdump_ssh_server_outside }}
@@ -25,8 +37,5 @@
           type: ssh
           # This is the ssh dump server address visible from inside
           # the machine being configured. Dumps are to be copied
-          # there. We make here the assumption that this machine is
-          # being run as a VM and the dump server is the VM host
-          # (i.e. for ansible this is localhost). From the VM its
-          # address is then identical to the default route.
-          location: "{{ kdump_ssh_user }}@{{ ansible_default_ipv4.gateway }}"
+          # there.
+          location: "{{ kdump_ssh_user }}@{{ kdump_ssh_server_inside }}"
