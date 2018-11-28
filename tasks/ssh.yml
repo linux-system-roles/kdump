@@ -18,3 +18,16 @@
     key: "{{ keydata.content|b64decode }}"
     state: present
   delegate_to: "{{ kdump_ssh_server }}"
+
+- name: Fetch the servers public key
+  slurp:
+    src: /etc/ssh/ssh_host_rsa_key.pub
+  register: serverpubkey
+  delegate_to: "{{ kdump_ssh_server }}"
+
+- name: Add the servers public key to known_hosts on managed node
+  known_hosts:
+    key: "{{ __kdump_ssh_server_location }} {{ serverpubkey.content |
+             b64decode }}"
+    name: "{{ __kdump_ssh_server_location }}"
+    path: /etc/ssh/ssh_known_hosts
