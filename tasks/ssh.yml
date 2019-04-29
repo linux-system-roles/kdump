@@ -7,13 +7,14 @@
   command: "/usr/bin/ssh-keygen -t rsa -f {{ kdump_sshkey }} -N '' "
   when: not sshkey_stats.stat.exists
 
-- name: Cat file to register
-  shell: cat {{ kdump_sshkey }}.pub
+- name: Fetch key
+  slurp:
+    src: "{{ kdump_sshkey }}.pub"
   register: keydata
 
 - name: Add key to authorized keys
   authorized_key:
     user: "{{ kdump_ssh_user }}"
-    key: "{{ keydata.stdout }}"
+    key: "{{ keydata.content|b64decode }}"
     state: present
   delegate_to: "{{ kdump_ssh_server }}"

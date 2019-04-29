@@ -5,7 +5,8 @@
     state: present
 
 - name: Find out reserved memory for the crash kernel
-  command: cat /sys/kernel/kexec_crash_size
+  slurp:
+    src: /sys/kernel/kexec_crash_size
   register: kexec_crash_size
 
 - include_tasks: ssh.yml
@@ -18,7 +19,7 @@
     src: kdump.conf.j2
     dest: /etc/kdump.conf
     backup: yes
-  when: kexec_crash_size.stdout|int > 0
+  when: kexec_crash_size.content|b64decode|int > 0
   notify: restart kdump
 
 - name: Generate /etc/sysconfig/kdump
@@ -26,5 +27,5 @@
     src: kdump.j2
     dest: /etc/sysconfig/kdump
     backup: yes
-  when: kexec_crash_size.stdout|int > 0
+  when: kexec_crash_size.content|b64decode|int > 0
   notify: restart kdump
