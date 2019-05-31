@@ -1,0 +1,34 @@
+---
+- name: Create static inventory from hostvars
+  hosts: all
+  tasks:
+    - name: create temporary file
+      tempfile:
+        state: file
+        suffix: .inventory.yaml
+      register: tempinventory
+      delegate_to: localhost
+
+    - name: Create static inventory from hostvars
+      template:
+        src: inventory.yaml.j2
+        dest: "{{ tempinventory.path }}"
+      delegate_to: localhost
+
+
+- name: Run tests_ssh.yml normally
+  import_playbook: tests_ssh.yml
+
+- name: Run tests_ssh.yml in check_mode
+  hosts: all
+  tasks:
+    - name: Run ansible-playbook with tests_ssh.yml in check mode
+      command: ansible-playbook -vvv -i {{ tempinventory.path }} --check tests_ssh.yml
+      delegate_to: localhost
+
+    - name: remove the temporary file
+      file:
+        path: "{{ tempinventory.path }}"
+        state: absent
+      when: tempinventory.path is defined
+      delegate_to: localhost
