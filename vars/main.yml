@@ -1,5 +1,5 @@
 # determine the managed node facing ssh server address
-__kdump_ssh_server_location: "{{ kdump_target.location | 
+__kdump_ssh_server_location: "{{ kdump_target.location |
                                  regex_replace('.*@(.*)$', '\\1')
                                  if kdump_target.location is defined
                                  else kdump_ssh_server }}"
