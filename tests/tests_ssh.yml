@@ -7,6 +7,7 @@
     # Can be set to localhost if the control node is being used as the
     # kdump target. This requires sshd to be running on the control
     # node, though.
+    # In this case uncomment the tests::multihost_localhost tag below.
     # Setting it to inventory_hostname uses the managed node itself as
     # the kdump target. This makes the the test entirely single-host,
     # but is less realistic, as in practice a host can not dump core
@@ -24,6 +25,18 @@
       else
       hostvars[kdump_test_ssh_server_outside]['ansible_default_ipv4']['address']
       }}
+
+  # This test may execute some tasks on localhost and rely on
+  # localhost being a different host than the managed host
+  # (localhost is being used as a second host in multihost
+  # scenario). This would also mean that localhost would have to
+  # be capable enough (not just a container - must be running a
+  # sshd).
+  # This applies only when kdump_test_ssh_server_outside is set to
+  # localhost. In that case, uncomment the lines below and the
+  # corresponding line in tests_ssh_wrapper.yml
+  # tags:
+  #   - 'tests::multihost_localhost'
 
   tasks:
     - name: gather facts from {{ kdump_test_ssh_server_outside }}

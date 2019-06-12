@@ -1,6 +1,8 @@
 ---
 - name: Create static inventory from hostvars
   hosts: all
+  tags:
+    - 'tests::slow'
   tasks:
     - name: create temporary file
       tempfile:
@@ -17,10 +19,16 @@
 
 
 - name: Run tests_ssh.yml normally
+  tags:
+    - 'tests::slow'
   import_playbook: tests_ssh.yml
 
 - name: Run tests_ssh.yml in check_mode
   hosts: all
+  tags:
+    - 'tests::slow'
+    # uncomment the line below if uncommenting it in tests_ssh.yml
+    # - 'tests::multihost_localhost'
   tasks:
     - name: Run ansible-playbook with tests_ssh.yml in check mode
       command: |
