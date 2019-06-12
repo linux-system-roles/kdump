@@ -1,6 +1,8 @@
 ---
 - name: Create static inventory from hostvars
   hosts: all
+  tags:
+    - 'tests::tier1'
   tasks:
     - name: create temporary file
       tempfile:
@@ -21,6 +23,8 @@
 
 - name: Run tests_default.yml in check_mode
   hosts: all
+  tags:
+    - 'tests::tier1'
   tasks:
     - name: Run ansible-playbook with tests_default.yml in check mode
       command: ansible-playbook -vvv -i {{ tempinventory.path }} --check tests_default.yml

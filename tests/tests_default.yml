@@ -1,6 +1,18 @@
 
 - name: Ensure that the rule runs with default parameters
+  tags:
+    - 'tests::tier1'
   hosts: all
 
   roles:
     - kdump
+
+  pre_tasks:
+    - name: Import tasks
+      tags: tests::tier1::cleanup
+      import_tasks: get_services_state.yml
+
+  post_tasks:
+    - name: Import tasks
+      tags: tests::tier1::cleanup
+      import_tasks: restore_services_state.yml
