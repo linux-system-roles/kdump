@@ -1,4 +1,4 @@
-
+---
 - name: Ensure that the rule runs with ssh
   hosts: all
   vars:
@@ -16,6 +16,7 @@
     - include_role:
         name: kdump
       vars:
+        # yamllint disable-line rule:line-length
         kdump_ssh_user: "{{ hostvars[kdump_ssh_server_outside]['ansible_user_id'] }}"
         # This is the outside address. Ansible will connect to it to
         # copy the ssh key.

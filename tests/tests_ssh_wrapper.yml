@@ -23,6 +23,7 @@
   hosts: all
   tasks:
     - name: Run ansible-playbook with tests_ssh.yml in check mode
+      # yamllint disable-line rule:line-length
       command: ansible-playbook -vvv -i {{ tempinventory.path }} --check tests_ssh.yml
       delegate_to: localhost
 
