@@ -1,4 +1,3 @@
-
 - name: Ensure that the rule runs with ssh
   hosts: all
   vars:
@@ -11,12 +10,13 @@
     - name: gather facts from {{ kdump_ssh_server_outside }}
       setup:
       delegate_to: "{{ kdump_ssh_server_outside }}"
-      delegate_facts: True
+      delegate_facts: true
 
     - include_role:
         name: kdump
       vars:
-        kdump_ssh_user: "{{ hostvars[kdump_ssh_server_outside]['ansible_user_id'] }}"
+        kdump_ssh_user: |
+          {{ hostvars[kdump_ssh_server_outside]['ansible_user_id'] }}
         # This is the outside address. Ansible will connect to it to
         # copy the ssh key.
         kdump_ssh_server: "{{ kdump_ssh_server_outside }}"

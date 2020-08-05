@@ -23,7 +23,9 @@
   hosts: all
   tasks:
     - name: Run ansible-playbook with tests_default.yml in check mode
-      command: ansible-playbook -vvv -i {{ tempinventory.path }} --check tests_default.yml
+      command: >
+        ansible-playbook -vvv -i {{ tempinventory.path }}
+        --check tests_default.yml
       delegate_to: localhost
 
     - name: remove the temporary file
