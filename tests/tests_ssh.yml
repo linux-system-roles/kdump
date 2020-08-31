@@ -13,7 +13,7 @@
       delegate_facts: true
 
     - include_role:
-        name: kdump
+        name: linux-system-roles.kdump
       vars:
         kdump_ssh_user: |
           {{ hostvars[kdump_ssh_server_outside]['ansible_user_id'] }}
