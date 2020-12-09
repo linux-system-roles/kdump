@@ -8,7 +8,7 @@
 #   $1     - command runnable in Python (should be present in $PATH)
 #   ${@:2} - arguments passed to $1
 
-set -e
+set -ex
 
 ME=$(basename "$0")
 SCRIPTDIR=$(readlink -f "$(dirname "$0")")
