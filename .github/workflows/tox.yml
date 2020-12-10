@@ -1,3 +1,4 @@
+# yamllint disable rule:line-length
 name: tox
 on:  # yamllint disable-line rule:truthy
   - pull_request
@@ -24,7 +25,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install tox
       - name: Run tox tests
-        # yamllint disable-line rule:line-length
         run: |
           set -euxo pipefail
           toxpyver=$(echo "${{ matrix.pyver }}" | tr -d .)
@@ -60,7 +60,6 @@ jobs:
           sudo pip install 'tox<3' 'virtualenv==15.*' 'pluggy==0.5.*'
           sudo pip list
         env:
-          # yamllint disable-line rule:line-length
           PY26URL: https://storage.googleapis.com/travis-ci-language-archives/python/binaries/ubuntu/14.04/x86_64/python-2.6.tar.bz2
           VIRTUAL_ENV_DISABLE_PROMPT: "true"
       - name: Run tox tests
