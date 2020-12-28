@@ -27,6 +27,7 @@
         ansible-playbook -vvv -i {{ tempinventory.path }}
         --check tests_default.yml
       delegate_to: localhost
+      changed_when: false
 
     - name: remove the temporary file
       file:
