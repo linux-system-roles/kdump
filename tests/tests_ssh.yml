@@ -45,6 +45,8 @@
         - name: print service status
           command: systemctl status kdump.service
           register: systemctl_status_out
+          # systemctl returns non-zero exit codes to indicate service status
+          ignore_errors: yes
 
         - name: print service log
           command: journalctl -u kdump.service
