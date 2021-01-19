@@ -31,6 +31,9 @@
               # (i.e. for ansible this is localhost). From the VM its
               # address is then identical to the default route.
               location: "{{ kdump_ssh_user }}@{{ ansible_default_ipv4.gateway }}"
+
+        - name: errors in kdump occur in handlers, flush them
+          meta: flush_handlers
       rescue:
         - name: create directory for debug logs
           tempfile:
