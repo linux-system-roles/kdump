@@ -56,13 +56,13 @@
           delegate_to: localhost
           copy:
             content: "{{ systemctl_status_out.stdout }}"
-            dest: "{{ debuglog_dir.path }}/{{ systemctl.log }}"
+            dest: "{{ debuglog_dir.path }}/systemctl.log"
 
         - name: save journalctl log
           delegate_to: localhost
           copy:
             content: "{{ journalctl_out.stdout }}"
-            dest: "{{ debuglog_dir.path }}/{{ journalctl.log }}"
+            dest: "{{ debuglog_dir.path }}/journalctl.log"
 
         - fail:
             msg: "Failed in role with message: {{
