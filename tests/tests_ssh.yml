@@ -12,21 +12,53 @@
       delegate_to: "{{ kdump_ssh_server_outside }}"
       delegate_facts: true
 
-    - include_role:
-        name: linux-system-roles.kdump
-      vars:
-        kdump_ssh_user: >-
-          {{ hostvars[kdump_ssh_server_outside]['ansible_user_id'] }}
-        # This is the outside address. Ansible will connect to it to
-        # copy the ssh key.
-        kdump_ssh_server: "{{ kdump_ssh_server_outside }}"
-        kdump_path: /tmp/test
-        kdump_target:
-          type: ssh
-          # This is the ssh dump server address visible from inside
-          # the machine being configured. Dumps are to be copied
-          # there. We make here the assumption that this machine is
-          # being run as a VM and the dump server is the VM host
-          # (i.e. for ansible this is localhost). From the VM its
-          # address is then identical to the default route.
-          location: "{{ kdump_ssh_user }}@{{ ansible_default_ipv4.gateway }}"
+    - block:
+        - include_role:
+            name: linux-system-roles.kdump
+          vars:
+            kdump_ssh_user: >-
+              {{ hostvars[kdump_ssh_server_outside]['ansible_user_id'] }}
+            # This is the outside address. Ansible will connect to it to
+            # copy the ssh key.
+            kdump_ssh_server: "{{ kdump_ssh_server_outside }}"
+            kdump_path: /tmp/test
+            kdump_target:
+              type: ssh
+              # This is the ssh dump server address visible from inside
+              # the machine being configured. Dumps are to be copied
+              # there. We make here the assumption that this machine is
+              # being run as a VM and the dump server is the VM host
+              # (i.e. for ansible this is localhost). From the VM its
+              # address is then identical to the default route.
+              location: "{{ kdump_ssh_user }}@{{ ansible_default_ipv4.gateway }}"
+      rescue:
+        - name: create directory for debug logs
+          tempfile:
+            state: directory
+            prefix: lsr_tests_kdump_ssh.
+          register: debuglog_dir
+          delegate_to: localhost
+
+        - name: print service status
+          command: systemctl status kdump.service
+          register: systemctl_status_out
+
+        - name: print service log
+          command: journalctl -u kdump.service
+          register: journalctl_out
+
+        - name: save status log
+          delegate_to: localhost
+          copy:
+            content: "{{ systemctl_status_out.stdout }}"
+            dest: "{{ debuglog_dir.path }}/{{ systemctl.log }}"
+
+        - name: save journalctl log
+          delegate_to: localhost
+          copy:
+            content: "{{ journalctl_out.stdout }}"
+            dest: "{{ debuglog_dir.path }}/{{ journalctl.log }}"
+
+        - fail:
+            msg: "Failed in role with message: {{
+                  ansible_failed_result.msg }}"
