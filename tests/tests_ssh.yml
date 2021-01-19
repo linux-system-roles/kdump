@@ -64,6 +64,12 @@
             content: "{{ journalctl_out.stdout }}"
             dest: "{{ debuglog_dir.path }}/journalctl.log"
 
+        - name: save kdump.conf
+          fetch:
+            dest: "{{ debuglog_dir.path }}/"
+            src: /etc/kdump.conf
+            flat: yes
+
         - fail:
             msg: "Failed in role with message: {{
                   ansible_failed_result.msg }}"
