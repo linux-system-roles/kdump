@@ -15,7 +15,7 @@
     - include_role:
         name: linux-system-roles.kdump
       vars:
-        kdump_ssh_user: |
+        kdump_ssh_user: >-
           {{ hostvars[kdump_ssh_server_outside]['ansible_user_id'] }}
         # This is the outside address. Ansible will connect to it to
         # copy the ssh key.
