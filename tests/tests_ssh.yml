@@ -4,7 +4,14 @@
     # this is the outside address under which the ssh dump server is
     # known and ansible is supposed to be configured to be able to
     # connect to it (via inventory).
-    kdump_test_ssh_server_outside: localhost
+    # Can be set to localhost if the control node is being used as the
+    # kdump target. This requires sshd to be running on the control
+    # node, though.
+    # Setting it to inventory_hostname uses the managed node itself as
+    # the kdump target. This makes the the test entirely single-host,
+    # but is less realistic, as in practice a host can not dump core
+    # to itself.
+    kdump_test_ssh_server_outside: "{{ inventory_hostname }}"
     kdump_test_ssh_source: "{{ ansible_env['SSH_CONNECTION'].split()[0] }}"
 
     # this is the address at which the ssh dump server can be reached
