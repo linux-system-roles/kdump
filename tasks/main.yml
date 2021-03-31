@@ -14,18 +14,30 @@
     - kdump_target
     - kdump_target.type == "ssh"
 
+- name: Get mode of /etc/kdump.conf if it exists
+  stat:
+    path: /etc/kdump.conf
+  register: __kdump_conf
+
 - name: Generate /etc/kdump.conf
   template:
     src: kdump.conf.j2
     dest: /etc/kdump.conf
     backup: yes
+    mode: "{{ __kdump_conf.stat.mode | d('0644') }}"
   when: kexec_crash_size.content|b64decode|int > 0
   notify: restart kdump
+
+- name: Get mode of /etc/sysconfig/kdump if it exists
+  stat:
+    path: /etc/sysconfig/kdump
+  register: __sysconfig_kdump
 
 - name: Generate /etc/sysconfig/kdump
   template:
     src: kdump.j2
     dest: /etc/sysconfig/kdump
     backup: yes
+    mode: "{{ __sysconfig_kdump.stat.mode | d('0644') }}"
   when: kexec_crash_size.content|b64decode|int > 0
   notify: restart kdump
