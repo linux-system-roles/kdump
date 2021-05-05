@@ -11,7 +11,7 @@
 
 - include_tasks: ssh.yml
   when:
-    - kdump_target.type | d(none) == "ssh"
+    - kdump_target.type | d(none) == 'ssh'
 
 - name: Get mode of /etc/kdump.conf if it exists
   stat:
