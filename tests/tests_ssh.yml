@@ -13,7 +13,11 @@
     # but is less realistic, as in practice a host can not dump core
     # to itself.
     kdump_test_ssh_server_outside: "{{ inventory_hostname }}"
-    kdump_test_ssh_source: "{{ ansible_env['SSH_CONNECTION'].split()[0] }}"
+    kdump_test_ssh_source: "{{
+      ansible_env['SSH_CONNECTION'].split()[0]
+      if 'SSH_CONNECTION' in ansible_env
+      else '127.0.0.1'
+    }}"
 
     # this is the address at which the ssh dump server can be reached
     # from the managed host. Dumps will be uploaded there.
