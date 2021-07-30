@@ -1,0 +1,10 @@
+- name: Ensure that the rule runs with default parameters
+  hosts: all
+  vars:
+    kdump_reboot_ok: true
+  tags:
+    - tests::reboot
+  tasks:
+    - name: Run the role and reboot if necessary
+      include_role:
+        name: linux-system-roles.kdump

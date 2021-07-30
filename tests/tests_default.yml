@@ -1,5 +1,18 @@
 - name: Ensure that the rule runs with default parameters
   hosts: all
-
-  roles:
-    - linux-system-roles.kdump
+  tasks:
+    - name: >-
+        The role requires reboot only on specific systems. Hence running the
+        role in a rescue block to catch when it fails with reboot.
+      block:
+        - name: Run the role. If reboot is not required - the play succeeds.
+          include_role:
+            name: linux-system-roles.kdump
+      rescue:
+        - name: If reboot is required - assert the expected fail message
+          assert:
+            that:
+              - >-
+                'Reboot is required to apply changes.' in
+                ansible_failed_result.msg
+              - kdump_reboot_required | bool
