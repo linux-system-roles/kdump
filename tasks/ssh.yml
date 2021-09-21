@@ -37,10 +37,14 @@
 - name: Write new authorized_keys if needed
   vars:
     __kdump_authorized_keys_lines: "{{
-      (__kdump_authorized_keys.content | b64decode).split('\n') | reject('match', '^$') | list
+      (__kdump_authorized_keys.content | b64decode).split('\n') |
+      reject('match', '^$') | list
       if __kdump_authorized_keys is defined else []
     }}"
-    __kdump_authorized_keys_path: "{{ __kdump_authorized_keys_file.stat.path | d(__kdump_ssh_user_info.home ~ '/.ssh/authorized_keys') }}"
+    __kdump_authorized_keys_path: "{{
+      __kdump_authorized_keys_file.stat.path |
+      d(__kdump_ssh_user_info.home ~ '/.ssh/authorized_keys')
+    }}"
     __kdump_authorized_keys_lines_new: "{{
       __kdump_authorized_keys_lines | union([keydata.content | b64decode])
     }}"
