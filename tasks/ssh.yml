@@ -34,21 +34,16 @@
     - __kdump_authorized_keys_file.stat.isreg is defined
     - __kdump_authorized_keys_file.stat.isreg
 
-- name: Convert to lines and set dest file facts
-  set_fact:
+- name: Write new authorized_keys if needed
+  vars:
     __kdump_authorized_keys_lines: "{{
       (__kdump_authorized_keys.content | b64decode).split('\n') | reject('match', '^$') | list
       if __kdump_authorized_keys is defined else []
     }}"
-    __kdump_authorized_keys_path: "{{ __kdump_ssh_user_info.home ~ '/.ssh/authorized_keys' }}"
-
-- name: Add key if not present
-  set_fact:
+    __kdump_authorized_keys_path: "{{ __kdump_authorized_keys_file.stat.path | d(__kdump_ssh_user_info.home ~ '/.ssh/authorized_keys') }}"
     __kdump_authorized_keys_lines_new: "{{
       __kdump_authorized_keys_lines | union([keydata.content | b64decode])
     }}"
-
-- name: Write new authorized_keys if needed
   copy:
     content: "{{ (__kdump_authorized_keys_lines_new | join('\n')) ~ '\n' }}"
     dest: "{{ __kdump_authorized_keys_path }}"
