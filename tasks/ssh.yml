@@ -21,7 +21,9 @@
 
 - name: Set authorized_keys file path
   set_fact:
-    __kdump_authorized_keys_path: "{{ __kdump_ssh_user_info.home ~ '/.ssh/authorized_keys' }}"
+    __kdump_authorized_keys_path: "{{
+      __kdump_ssh_user_info.home ~ '/.ssh/authorized_keys'
+    }}"
 
 - name: Get the authorized_keys file for the user
   stat:
