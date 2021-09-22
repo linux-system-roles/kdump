@@ -12,12 +12,53 @@
     src: "{{ kdump_sshkey }}.pub"
   register: keydata
 
-- name: Add key to authorized keys
-  authorized_key:
-    user: "{{ kdump_ssh_user }}"
-    key: "{{ keydata.content|b64decode }}"
+- name: Get userinfo for "{{ kdump_ssh_user }}"
+  user:
+    name: "{{ kdump_ssh_user }}"
     state: present
+  register: __kdump_ssh_user_info
   delegate_to: "{{ kdump_ssh_server }}"
+
+- name: Set authorized_keys file path
+  set_fact:
+    __kdump_authorized_keys_path: "{{
+      __kdump_ssh_user_info.home ~ '/.ssh/authorized_keys'
+    }}"
+
+- name: Get the authorized_keys file for the user
+  stat:
+    path: "{{ __kdump_authorized_keys_path }}"
+  register: __kdump_authorized_keys_file
+  delegate_to: "{{ kdump_ssh_server }}"
+
+- name: Get the authorized_keys contents, if any
+  slurp:
+    src: "{{ __kdump_authorized_keys_file.stat.path }}"
+  delegate_to: "{{ kdump_ssh_server }}"
+  register: __kdump_authorized_keys
+  when:
+    - __kdump_authorized_keys_file.stat.isreg is defined
+    - __kdump_authorized_keys_file.stat.isreg
+
+- name: Write new authorized_keys if needed
+  vars:
+    __kdump_authorized_keys_lines: "{{
+      (__kdump_authorized_keys.content | b64decode).split('\n') |
+      reject('match', '^$') | list
+      if __kdump_authorized_keys is defined else []
+    }}"
+    __kdump_authorized_keys_lines_new: "{{
+      __kdump_authorized_keys_lines | union([keydata.content | b64decode])
+    }}"
+  copy:
+    content: "{{ (__kdump_authorized_keys_lines_new | join('\n')) ~ '\n' }}"
+    dest: "{{ __kdump_authorized_keys_file.stat.path |
+              d(__kdump_authorized_keys_path) }}"
+    group: "{{ __kdump_authorized_keys_file.stat.group | d(kdump_ssh_user) }}"
+    owner: "{{ __kdump_authorized_keys_file.stat.owner | d(kdump_ssh_user) }}"
+    mode: "{{ __kdump_authorized_keys_file.stat.mode | d('0600') }}"
+  delegate_to: "{{ kdump_ssh_server }}"
+  when: __kdump_authorized_keys_lines != __kdump_authorized_keys_lines_new
 
 - name: Fetch the servers public key
   slurp:
