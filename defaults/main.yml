@@ -6,3 +6,4 @@ kdump_system_action: reboot
 kdump_ssh_user: null
 kdump_ssh_server: null
 kdump_sshkey: /root/.ssh/kdump_id_rsa
+kdump_reboot_ok: false

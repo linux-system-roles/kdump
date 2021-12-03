@@ -43,6 +43,10 @@
       # there.
       location: "{{ kdump_ssh_user }}@{{ kdump_test_ssh_server_inside }}"
 
+    kdump_reboot_ok: true
+  tags:
+    - tests::reboot
+
   # This test may execute some tasks on localhost and rely on
   # localhost being a different host than the managed host
   # (localhost is being used as a second host in multihost
@@ -63,7 +67,7 @@
 
     - name: Print message that this test is skipped on EL 6
       debug:
-        msg: Skipping the test on EL 6 when storing logs over ssh to localhost
+        msg: Skipping the test on EL 6 because control node == managed node
       when:
         - ansible_distribution in ['CentOS','RedHat']
         - ansible_distribution_major_version == '6'
@@ -78,18 +82,6 @@
         - ansible_distribution_major_version == '6'
         - kdump_test_ssh_server_outside == inventory_hostname
 
-    - name: >-
-        The role requires reboot only on specific systems. Hence running the
-        role in a rescue block to catch when it fails with reboot.
-      block:
-        - name: Run the role. If reboot is not required - the play succeeds.
-          include_role:
-            name: linux-system-roles.kdump
-      rescue:
-        - name: If reboot is required - assert the expected fail message
-          assert:
-            that:
-              - >-
-                'Reboot is required to apply changes.' in
-                ansible_failed_result.msg
-              - kdump_reboot_required | bool
+    - name: Run the role and reboot if necessary
+      include_role:
+        name: linux-system-roles.kdump

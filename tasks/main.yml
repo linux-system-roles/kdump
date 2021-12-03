@@ -4,12 +4,13 @@
     name: kexec-tools
     state: present
 
-- name: Find out reserved memory for the crash kernel
-  slurp:
-    src: /sys/kernel/kexec_crash_size
-  register: kexec_crash_size
+- name: Ensure that kdump is enabled
+  service:
+    name: kdump
+    enabled: true
 
-- include_tasks: ssh.yml
+- name: Include SSH tasks
+  include_tasks: ssh.yml
   when:
     - kdump_target.type | d(none) == 'ssh'
 
@@ -24,7 +25,6 @@
     dest: /etc/kdump.conf
     backup: yes
     mode: "{{ __kdump_conf.stat.mode | d('0644') }}"
-  when: kexec_crash_size.content|b64decode|int > 0
   notify: restart kdump
 
 - name: Get mode of /etc/sysconfig/kdump if it exists
@@ -38,5 +38,46 @@
     dest: /etc/sysconfig/kdump
     backup: yes
     mode: "{{ __sysconfig_kdump.stat.mode | d('0644') }}"
-  when: kexec_crash_size.content|b64decode|int > 0
   notify: restart kdump
+
+- name: Find out reserved memory for the crash kernel
+  slurp:
+    src: /sys/kernel/kexec_crash_size
+  register: kexec_crash_size
+
+- name: Set the kdump_reboot_required fact
+  set_fact:
+    kdump_reboot_required: "{{
+      kexec_crash_size.content | b64decode | int < 1
+    }}"
+
+- name: Fail if reboot is required and kdump_reboot_ok is false
+  fail:
+    msg: >-
+      "Reboot is required to apply changes. Re-execute the role after boot to
+      ensure that kdump is working."
+  when:
+    - kdump_reboot_required | bool
+    - not kdump_reboot_ok
+
+- name: Reboot the managed node
+  reboot:
+  when:
+    - kdump_reboot_required | bool
+    - kdump_reboot_ok | bool
+
+- name: Clear the kdump_reboot_required flag
+  set_fact:
+    kdump_reboot_required: false
+  when:
+    - kdump_reboot_required | bool
+    - kdump_reboot_ok | bool
+
+# This task is for users who run the role after reboot. The handlers do not run
+# in this case, because the role results in not changed state. It is necessary
+# to explicitly start kdump to rebuild initrd.
+- name: Ensure that kdump is started
+  service:
+    name: kdump
+    state: started
+  register: __kdump_service_start
