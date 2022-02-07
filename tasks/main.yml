@@ -51,6 +51,13 @@
       kexec_crash_size.content | b64decode | int < 1
     }}"
 
+- name: Use kdumpctl reset-crashkernel if needed
+  command: kdumpctl reset-crashkernel --kernel=ALL
+  when:
+    - kdump_reboot_required | bool
+    - ansible_facts['distribution'] in ['RedHat', 'CentOS']
+    - ansible_facts['distribution_major_version'] | int >= 9
+
 - name: Fail if reboot is required and kdump_reboot_ok is false
   fail:
     msg: >-
