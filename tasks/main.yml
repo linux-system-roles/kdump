@@ -1,7 +1,10 @@
 ---
-- name: Install kexec-tools
+- name: Ensure ansible_facts used by role
+  include_tasks: set_vars.yml
+
+- name: Install required packages
   package:
-    name: kexec-tools
+    name: "{{ __kdump_packages }}"
     state: present
 
 - name: Ensure that kdump is enabled
