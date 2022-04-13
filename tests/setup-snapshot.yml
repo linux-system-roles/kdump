@@ -1,0 +1,12 @@
+- hosts: all
+  tasks:
+    - name: Set platform/version specific variables
+      include_role:
+        name: linux-system-roles.kdump
+        tasks_from: set_vars.yml
+        public: true
+
+    - name: Install test packages
+      package:
+        name: "{{ __kdump_packages }}"
+        state: present

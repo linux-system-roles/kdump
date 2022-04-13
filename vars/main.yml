@@ -3,3 +3,15 @@ __kdump_ssh_server_location: "{{ kdump_target.location |
                                  regex_replace('.*@(.*)$', '\\1')
                                  if kdump_target.location is defined
                                  else kdump_ssh_server }}"
+
+__kdump_packages:
+  - "kexec-tools"
+
+__kdump_required_facts:
+  - all_ipv4_addresses
+  - all_ipv6_addresses
+  - default_ipv4
+  - distribution
+  - distribution_major_version
+  - distribution_version
+  - user_id
