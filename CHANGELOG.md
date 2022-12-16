@@ -177,7 +177,7 @@ must be a `string` value like `"2.9"`, not a `float` value like `2.9`.
 ### Other Changes
 
 - Remove python-26 environment from tox testing
-- update to tox-lsr 2.4.0 - add support for ansible-test sanity with docker
+- update to tox-lsr 2.4.0 - add support for ansible-test with docker
 - Add tags to tests
 - CI: Add support for RHEL-9
 
