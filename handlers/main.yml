@@ -1,5 +1,5 @@
 ---
-- name: restart kdump
+- name: Restart kdump
   service:
     name: kdump
     state: restarted

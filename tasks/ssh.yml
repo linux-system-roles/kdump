@@ -1,6 +1,7 @@
 ---
 - name: Check whether key exists
-  stat: path="{{ kdump_sshkey }}"
+  stat:
+    path: "{{ kdump_sshkey }}"
   register: sshkey_stats
 
 - name: Create key
@@ -12,7 +13,7 @@
     src: "{{ kdump_sshkey }}.pub"
   register: keydata
 
-- name: Get userinfo for "{{ kdump_ssh_user }}"
+- name: Get userinfo for {{ kdump_ssh_user }}
   user:
     name: "{{ kdump_ssh_user }}"
     state: present

@@ -1,7 +1,8 @@
+---
 galaxy_info:
   author: Baoquan He <bhe@redhat.com>
   description: Configure kdump
-  galaxy_tags: [ 'system', 'kdump', 'redhat', 'rhel', 'fedora', 'centos' ]
+  galaxy_tags: ['system', 'kdump', 'redhat', 'rhel', 'fedora', 'centos']
   company: Red Hat, Inc.
   license: MIT
   min_ansible_version: "2.9"
@@ -11,7 +12,7 @@ galaxy_info:
         - all
     - name: EL
       versions:
-        - 6
-        - 7
-        - 8
-        - 9
+        - "6"
+        - "7"
+        - "8"
+        - "9"
