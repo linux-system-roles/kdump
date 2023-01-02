@@ -1,3 +1,4 @@
+---
 - name: Ensure that the rule runs with default parameters
   hosts: all
   vars:

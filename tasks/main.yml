@@ -26,9 +26,9 @@
   template:
     src: kdump.conf.j2
     dest: /etc/kdump.conf
-    backup: yes
+    backup: true
     mode: "{{ __kdump_conf.stat.mode | d('0644') }}"
-  notify: restart kdump
+  notify: Restart kdump
 
 - name: Get mode of /etc/sysconfig/kdump if it exists
   stat:
@@ -39,9 +39,9 @@
   template:
     src: kdump.j2
     dest: /etc/sysconfig/kdump
-    backup: yes
+    backup: true
     mode: "{{ __sysconfig_kdump.stat.mode | d('0644') }}"
-  notify: restart kdump
+  notify: Restart kdump
 
 - name: Find out reserved memory for the crash kernel
   slurp:
