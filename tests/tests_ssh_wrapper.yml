@@ -4,7 +4,7 @@
   tags:
     - 'tests::slow'
   tasks:
-    - name: create temporary file
+    - name: Create temporary file
       tempfile:
         state: file
         suffix: .inventory.yaml
@@ -37,7 +37,7 @@
       delegate_to: localhost
       changed_when: false
 
-    - name: remove the temporary file
+    - name: Remove the temporary file
       file:
         path: "{{ tempinventory.path }}"
         state: absent
