@@ -1,6 +1,6 @@
 {{ ansible_managed | comment }}
 
-{% if ansible_distribution == 'Fedora' or (ansible_distribution == 'RedHat' and ansible_distribution_version|int >= 7) %}
+{% if ansible_distribution == 'Fedora' or (ansible_os_family == 'RedHat' and ansible_distribution_version|int >= 7) %}
 
 KDUMP_COMMANDLINE_REMOVE="hugepages hugepagesz slub_debug quiet"
 
