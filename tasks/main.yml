@@ -30,19 +30,6 @@
     mode: "{{ __kdump_conf.stat.mode | d('0644') }}"
   notify: Restart kdump
 
-- name: Get mode of /etc/sysconfig/kdump if it exists
-  stat:
-    path: /etc/sysconfig/kdump
-  register: __sysconfig_kdump
-
-- name: Generate /etc/sysconfig/kdump
-  template:
-    src: kdump.j2
-    dest: /etc/sysconfig/kdump
-    backup: true
-    mode: "{{ __sysconfig_kdump.stat.mode | d('0644') }}"
-  notify: Restart kdump
-
 - name: Find out reserved memory for the crash kernel
   slurp:
     src: /sys/kernel/kexec_crash_size

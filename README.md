@@ -9,9 +9,8 @@ An ansible role which configures kdump.
 The role replaces the kdump configuration of the managed
 host. Previous settings will be lost, even if they are not specified
 in the role variables. Currently, this includes replacing at least the
-following configuration files:
+following configuration file:
 
-* `/etc/sysconfig/kdump`
 * `/etc/kdump.conf`
 
 ## Role Variables
