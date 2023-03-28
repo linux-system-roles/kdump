@@ -62,6 +62,14 @@ with options depending on the `kdump_target.type`.
   The action that is performed when dumping the core file fails. Can be
   `reboot`, `halt`, `poweroff`, or `shell`.
 
+**kdump_auto_reset_crashkernel**:
+  Whether to reset kernel crashkernel to new default value or not when kexec-tools
+  updates the default crashkernel value and existing kernels using the old default
+  kernel crashkernel value.
+
+**kdump_dracut_args**:
+  Pass extra dracut options when rebuilding kdump initrd.
+
 **kdump_reboot_ok**: If you run the role on a managed node that does not have
 memory reserved for crash kernel, i.e. the file `/sys/kernel/kexec_crash_size`
 contains `0`, it might be required to reboot the managed node to configure kdump.
