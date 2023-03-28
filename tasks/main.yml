@@ -52,6 +52,17 @@
     - ansible_facts['distribution'] in ['RedHat', 'CentOS']
     - ansible_facts['distribution_major_version'] | int >= 9
 
+- name: Use grubby to update crashkernel=auto if needed
+  ansible.builtin.command: grubby --args="crashkernel=auto" --update-kernel=ALL
+  when:
+    - kdump_reboot_required | bool
+    - ansible_facts['distribution'] in ['RedHat', 'CentOS']
+    - ansible_facts['distribution_major_version'] | int <= 8
+  changed_when:
+    - kdump_reboot_required | bool
+    - ansible_facts['distribution'] in ['RedHat', 'CentOS']
+    - ansible_facts['distribution_major_version'] | int <= 8
+
 - name: Fail if reboot is required and kdump_reboot_ok is false
   fail:
     msg: >-
