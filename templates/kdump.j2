@@ -1,4 +1,5 @@
 {{ ansible_managed | comment }}
+{{ "system_role:kdump" | comment(prefix="", postfix="") }}
 
 {% if ansible_distribution == 'Fedora' or (ansible_os_family == 'RedHat' and ansible_distribution_version|int >= 7) %}
 
