@@ -7,3 +7,5 @@ kdump_ssh_user: null
 kdump_ssh_server: null
 kdump_sshkey: /root/.ssh/kdump_id_rsa
 kdump_reboot_ok: false
+kdump_auto_reset_crashkernel: true
+kdump_dracut_args: null
