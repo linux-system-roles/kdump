@@ -53,7 +53,7 @@
     - ansible_facts['distribution_major_version'] | int >= 9
 
 - name: Use grubby to update crashkernel=auto if needed
-  ansible.builtin.command: grubby --args="crashkernel=auto" --update-kernel=ALL
+  command: grubby --args="crashkernel=auto" --update-kernel=ALL
   when:
     - kdump_reboot_required | bool
     - ansible_facts['distribution'] in ['RedHat', 'CentOS']
