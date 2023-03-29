@@ -1,4 +1,5 @@
 {{ ansible_managed | comment }}
+{{ "system_role:kdump" | comment(prefix="", postfix="") }}
 
 {% if kdump_target %}
 {% if kdump_target.type == "ssh" %}
