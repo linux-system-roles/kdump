@@ -1,6 +1,19 @@
 Changelog
 =========
 
+[1.2.7] - 2023-04-06
+--------------------
+
+### Bug Fixes
+
+- Use ansible_os_family in template (#133)
+
+### Other Changes
+
+- Remove unused test script "semaphore" (#131)
+- Add README-ansible.md to refer Ansible intro page on linux-system-roles.github.io (#134)
+- Fingerprint RHEL System Role managed config files (#136)
+
 [1.2.6] - 2023-01-16
 --------------------
 
