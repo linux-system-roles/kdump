@@ -7,6 +7,7 @@
 - name: Create key
   command: "/usr/bin/ssh-keygen -t rsa -f {{ kdump_sshkey }} -N '' "
   when: not sshkey_stats.stat.exists
+  changed_when: true
 
 - name: Fetch key
   slurp:
