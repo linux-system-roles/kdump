@@ -9,3 +9,13 @@
     - name: Run the role and reboot if necessary
       include_role:
         name: linux-system-roles.kdump
+
+    - name: Check generated files for ansible_managed, fingerprint
+      include_tasks: tasks/check_header.yml
+      loop:
+        - /etc/kdump.conf
+        - /etc/sysconfig/kdump
+      loop_control:
+        loop_var: __file
+      vars:
+        __fingerprint: "system_role:kdump"
