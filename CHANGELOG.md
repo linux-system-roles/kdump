@@ -1,6 +1,22 @@
 Changelog
 =========
 
+[1.3.0] - 2023-05-26
+--------------------
+
+### New Features
+
+- feat: Add support for auto_reset_crashkernel and dracut_args
+
+### Bug Fixes
+
+- fix: do not use /etc/sysconfig/kdump
+- fix: use grubby to update crashkernel=auto if needed
+
+### Other Changes
+
+- docs: Consistent contributing.md for all roles - allow role specific contributing.md section
+
 [1.2.9] - 2023-04-27
 --------------------
 
