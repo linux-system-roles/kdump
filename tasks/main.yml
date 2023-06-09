@@ -38,30 +38,22 @@
 - name: Set the kdump_reboot_required fact
   set_fact:
     kdump_reboot_required: "{{
-      kexec_crash_size.content | b64decode | int < 1
-    }}"
+      kexec_crash_size.content | b64decode | int < 1 }}"
 
-- name: Use kdumpctl reset-crashkernel if needed
-  command: kdumpctl reset-crashkernel --kernel=ALL
+- name: Update crashkernel setting if needed
   when:
     - kdump_reboot_required | bool
-    - ansible_facts['distribution'] in ['RedHat', 'CentOS']
-    - ansible_facts['distribution_major_version'] | int >= 9
-  changed_when:
-    - kdump_reboot_required | bool
-    - ansible_facts['distribution'] in ['RedHat', 'CentOS']
-    - ansible_facts['distribution_major_version'] | int >= 9
+    - ansible_facts['distribution'] in ['RedHat', 'CentOS', 'Fedora']
+  block:
+    - name: Use kdumpctl reset-crashkernel if needed
+      command: kdumpctl reset-crashkernel --kernel=ALL
+      when: ansible_facts['distribution_major_version'] | int >= 9
+      changed_when: true
 
-- name: Use grubby to update crashkernel=auto if needed
-  command: grubby --args="crashkernel=auto" --update-kernel=ALL
-  when:
-    - kdump_reboot_required | bool
-    - ansible_facts['distribution'] in ['RedHat', 'CentOS']
-    - ansible_facts['distribution_major_version'] | int <= 8
-  changed_when:
-    - kdump_reboot_required | bool
-    - ansible_facts['distribution'] in ['RedHat', 'CentOS']
-    - ansible_facts['distribution_major_version'] | int <= 8
+    - name: Use grubby to update crashkernel=auto if needed
+      command: grubby --args=crashkernel=auto --update-kernel=ALL
+      when: ansible_facts['distribution_major_version'] | int <= 8
+      changed_when: true
 
 - name: Fail if reboot is required and kdump_reboot_ok is false
   fail:

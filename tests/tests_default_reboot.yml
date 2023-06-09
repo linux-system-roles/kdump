@@ -3,6 +3,8 @@
   hosts: all
   vars:
     kdump_reboot_ok: true
+    kdump_dracut_args: --kernel-cmdline nopti
+    kdump_auto_reset_crashkernel: true
   tags:
     - tests::reboot
   tasks:
@@ -12,10 +14,96 @@
 
     - name: Check generated files for ansible_managed, fingerprint
       include_tasks: tasks/check_header.yml
-      loop:
-        - /etc/kdump.conf
-        - /etc/sysconfig/kdump
-      loop_control:
-        loop_var: __file
       vars:
         __fingerprint: "system_role:kdump"
+        __file: /etc/kdump.conf
+
+    - name: See if el9 or later, or el7 or el8
+      set_fact:
+        is_el9: "{{
+          ansible_facts['distribution'] in ['RedHat', 'CentOS', 'Fedora']
+          and ansible_facts['distribution_major_version'] | int >= 9 }}"
+        is_el7_or_el8: "{{
+          ansible_facts['distribution'] in ['RedHat', 'CentOS']
+          and ansible_facts['distribution_major_version'] | int in [7, 8] }}"
+
+    - name: Check for crashkernel, grubby settings
+      when: is_el9 or is_el7_or_el8
+      block:
+        - name: Check parameters in conf file
+          command: grep '^{{ item.param }} {{ item.value }}$' /etc/kdump.conf
+          changed_when: false
+          loop: "{{ params + (is_el9 | ternary(el9_params, [])) }}"
+          vars:
+            el9_params:
+              - param: auto_reset_crashkernel
+                value: "{{ kdump_auto_reset_crashkernel |
+                  ternary('yes', 'no') }}"
+            params:
+              - param: dracut_args
+                value: "{{ kdump_dracut_args }}"
+
+        - name: Get crashkernel setting EL 9 and later
+          command: kdumpctl get-default-crashkernel
+          changed_when: false
+          register: __crashkernel
+          when: is_el9 | bool
+
+        - name: Get crashkernel setting EL 8 and earlier
+          set_fact:
+            __crashkernel:
+              stdout: auto
+          when: is_el7_or_el8 | bool
+
+        - name: Check for crashkernel setting
+          shell: >
+            set -euo pipefail;
+            grubby --info=ALL | grep -E {{ pattern | quote }}
+          changed_when: false
+          vars:
+            pattern: ^args=.* crashkernel={{ __crashkernel.stdout }}( |"|$)
+
+    - name: Change parameters and run the role again
+      set_fact:
+        kdump_auto_reset_crashkernel: false
+        kdump_dracut_args: --print-cmdline
+
+    - name: Run the role again with new parameters
+      include_role:
+        name: linux-system-roles.kdump
+
+    - name: Check for crashkernel, grubby settings
+      when: is_el9 or is_el7_or_el8
+      block:
+        - name: Check parameters in conf file
+          command: grep '^{{ item.param }} {{ item.value }}$' /etc/kdump.conf
+          changed_when: false
+          loop: "{{ params + (is_el9 | ternary(el9_params, [])) }}"
+          vars:
+            el9_params:
+              - param: auto_reset_crashkernel
+                value: "{{ kdump_auto_reset_crashkernel |
+                  ternary('yes', 'no') }}"
+            params:
+              - param: dracut_args
+                value: "{{ kdump_dracut_args }}"
+
+        - name: Get crashkernel setting EL 9 and later
+          command: kdumpctl get-default-crashkernel
+          changed_when: false
+          register: __crashkernel
+          when: is_el9 | bool
+
+        - name: Get crashkernel setting EL 8 and earlier
+          set_fact:
+            __crashkernel:
+              stdout: auto
+          when: is_el7_or_el8 | bool
+
+        - name: Check for crashkernel setting
+          shell: >
+            set -euo pipefail;
+            grubby --info=ALL | grep -E {{ pattern | quote }}
+          changed_when: false
+          vars:
+            pattern: ^args=.* crashkernel={{ __crashkernel.stdout }}( |"|$)
