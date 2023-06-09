@@ -20,13 +20,9 @@ core_collector {{ kdump_core_collector }}
 {% endif %}
 default {{ kdump_system_action }}
 
-{% if ansible_facts['distribution'] in ['RedHat', 'CentOS'] %}
+{% if ansible_facts['distribution'] in ['RedHat', 'CentOS', 'Fedora'] %}
 {% if ansible_facts['distribution_major_version'] | int >= 9 %}
-{% if kdump_auto_reset_crashkernel %}
-auto_reset_crashkernel yes
-{% else %}
-auto_reset_crashkernel no
-{% endif %}
+auto_reset_crashkernel {{ kdump_auto_reset_crashkernel | bool | ternary("yes", "no") }}
 {% endif %}
 {% if ansible_facts['distribution_major_version'] | int >= 7 %}
 {% if kdump_dracut_args %}
