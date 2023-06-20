@@ -1,6 +1,14 @@
 Changelog
 =========
 
+[1.3.1] - 2023-06-20
+--------------------
+
+### Other Changes
+
+- ci: Add pull request template and run commitlint on PR title only (#147)
+- test: add test for crashkernel, dracut settings (#148)
+
 [1.3.0] - 2023-05-26
 --------------------
 
