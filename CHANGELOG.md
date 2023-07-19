@@ -1,6 +1,18 @@
 Changelog
 =========
 
+[1.3.2] - 2023-07-19
+--------------------
+
+### Bug Fixes
+
+- fix: facts being gathered unnecessarily (#152)
+
+### Other Changes
+
+- ci: Rename commitlint to PR title Lint, echo PR titles from env var (#150)
+- ci: ansible-lint - ignore var-naming[no-role-prefix] (#151)
+
 [1.3.1] - 2023-06-20
 --------------------
 
