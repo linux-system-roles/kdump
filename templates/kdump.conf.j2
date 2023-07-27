@@ -18,11 +18,13 @@ path {{ kdump_path }}
 {% if kdump_core_collector %}
 core_collector {{ kdump_core_collector }}
 {% endif %}
-default {{ kdump_system_action }}
 
 {% if ansible_facts['distribution'] in ['RedHat', 'CentOS', 'Fedora'] %}
 {% if ansible_facts['distribution_major_version'] | int >= 9 %}
 auto_reset_crashkernel {{ kdump_auto_reset_crashkernel | bool | ternary("yes", "no") }}
+failure_action {{ kdump_system_action }}
+{% else %}
+default {{ kdump_system_action }}
 {% endif %}
 {% if ansible_facts['distribution_major_version'] | int >= 7 %}
 {% if kdump_dracut_args %}
