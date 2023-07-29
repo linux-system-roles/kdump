@@ -11,6 +11,7 @@
     - name: Run the role and reboot if necessary
       include_role:
         name: linux-system-roles.kdump
+        public: true
 
     - name: Check generated files for ansible_managed, fingerprint
       include_tasks: tasks/check_header.yml
@@ -33,15 +34,20 @@
         - name: Check parameters in conf file
           command: grep '^{{ item.param }} {{ item.value }}$' /etc/kdump.conf
           changed_when: false
-          loop: "{{ params + (is_el9 | ternary(el9_params, [])) }}"
+          loop: "{{ params + (is_el9 | ternary(el9_params, not_el9_params)) }}"
           vars:
+            params:
+              - param: dracut_args
+                value: "{{ kdump_dracut_args }}"
             el9_params:
               - param: auto_reset_crashkernel
                 value: "{{ kdump_auto_reset_crashkernel |
                   ternary('yes', 'no') }}"
-            params:
-              - param: dracut_args
-                value: "{{ kdump_dracut_args }}"
+              - param: failure_action
+                value: "{{ kdump_system_action }}"
+            not_el9_params:
+              - param: default
+                value: "{{ kdump_system_action }}"
 
         - name: Get crashkernel setting EL 9 and later
           command: kdumpctl get-default-crashkernel
