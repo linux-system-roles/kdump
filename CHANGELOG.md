@@ -1,6 +1,17 @@
 Changelog
 =========
 
+[1.3.3] - 2023-07-30
+--------------------
+
+### Bug Fixes
+
+- fix: use failure_action instead of default on EL9 and later (#155)
+
+### Other Changes
+
+- test: add test for failure_action (#156)
+
 [1.3.2] - 2023-07-19
 --------------------
 
