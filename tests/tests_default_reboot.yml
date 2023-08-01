@@ -13,6 +13,9 @@
         name: linux-system-roles.kdump
         public: true
 
+    - name: Notify and run handlers
+      meta: flush_handlers
+
     - name: Check generated files for ansible_managed, fingerprint
       include_tasks: tasks/check_header.yml
       vars:
