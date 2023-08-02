@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[1.3.4] - 2023-08-02
+--------------------
+
+### Other Changes
+
+- test: call handlers to refresh kdump before calling role again (#158)
+
 [1.3.3] - 2023-07-30
 --------------------
 
