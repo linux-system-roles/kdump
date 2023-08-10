@@ -1,5 +1,6 @@
 
 # Ansible Role: Kernel Crash Dump
+
 ![CI Testing](https://github.com/linux-system-roles/kdump/workflows/tox/badge.svg)
 
 An ansible role which configures kdump.
