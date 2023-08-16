@@ -1,6 +1,18 @@
 Changelog
 =========
 
+[1.3.5] - 2023-08-16
+--------------------
+
+### Bug Fixes
+
+- fix: do not fail if authorized_keys not found (#161)
+- fix: Write new authorized_keys if needed is not idempotent (#162)
+
+### Other Changes
+
+- ci: Add markdownlint, test_converting_readme, and build_docs workflows (#160)
+
 [1.3.4] - 2023-08-02
 --------------------
 
