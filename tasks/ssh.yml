@@ -47,17 +47,17 @@
     __kdump_authorized_keys_lines: "{{
       (__kdump_authorized_keys.content | d('Cg==') | b64decode).split('\n') |
       reject('match', '^$') | list }}"
-    __kdump_authorized_keys_lines_new: "{{
-      __kdump_authorized_keys_lines | union([keydata.content | b64decode]) }}"
+    __kdump_new_key: "{{ keydata.content | b64decode | trim }}"
   copy:
-    content: "{{ (__kdump_authorized_keys_lines_new | join('\n')) ~ '\n' }}"
+    content: "{{ ((__kdump_authorized_keys_lines + [__kdump_new_key]) |
+      join('\n')) ~ '\n' }}"
     dest: "{{ __kdump_authorized_keys_file.stat.path |
               d(__kdump_authorized_keys_path) }}"
     group: "{{ __kdump_authorized_keys_file.stat.group | d(kdump_ssh_user) }}"
     owner: "{{ __kdump_authorized_keys_file.stat.owner | d(kdump_ssh_user) }}"
     mode: "{{ __kdump_authorized_keys_file.stat.mode | d('0600') }}"
   delegate_to: "{{ kdump_ssh_server }}"
-  when: __kdump_authorized_keys_lines != __kdump_authorized_keys_lines_new
+  when: not __kdump_new_key in __kdump_authorized_keys_lines
 
 - name: Fetch the servers public key
   slurp:
