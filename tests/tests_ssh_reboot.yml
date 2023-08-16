@@ -33,8 +33,6 @@
     # This is the outside address. Ansible will connect to it to
     # copy the ssh key.
     kdump_ssh_server: "{{ kdump_test_ssh_server_outside }}"
-    kdump_ssh_user: >-
-      {{ hostvars[kdump_test_ssh_server_outside]['ansible_user_id'] }}
     kdump_path: /tmp/test
     kdump_target:
       type: ssh
@@ -65,6 +63,21 @@
       delegate_to: "{{ kdump_test_ssh_server_outside }}"
       delegate_facts: true
 
+    - name: Create a kdump user on kdump_ssh_server
+      user:
+        name: kdump_ssh_user
+        uid: 1189
+      register: __user_info
+      delegate_to: "{{ kdump_ssh_server }}"
+
+    - name: Set kdump_ssh_user, sshkey, auth keys
+      set_fact:
+        kdump_ssh_user: kdump_ssh_user
+        __ssh_dir: "{{
+          __user_info.home ~ '/.ssh' }}"
+        __authorized_keys_path: "{{
+          __user_info.home ~ '/.ssh/authorized_keys' }}"
+
     - name: Print message that this test is skipped on EL 6
       debug:
         msg: Skipping the test on EL 6 because control node == managed node
@@ -86,17 +99,14 @@
       include_role:
         name: linux-system-roles.kdump
 
-    - name: Get userinfo for {{ kdump_ssh_user }}
-      user:
-        name: "{{ kdump_ssh_user }}"
-        state: present
-      register: __user_info
-      delegate_to: "{{ kdump_ssh_server }}"
+    - name: Flush handlers
+      meta: flush_handlers
 
-    - name: Set authorized_keys file path
-      set_fact:
-        __authorized_keys_path: "{{
-          __user_info.home ~ '/.ssh/authorized_keys' }}"
+    - name: Get the ssh dir for the user
+      stat:
+        path: "{{ __ssh_dir }}"
+      register: __ssh_dir_stat_before
+      delegate_to: "{{ kdump_ssh_server }}"
 
     - name: Get the authorized_keys file for the user
       stat:
@@ -107,19 +117,37 @@
     - name: Get the authorized_keys contents
       slurp:
         src: "{{ __authorized_keys_file.stat.path }}"
-      delegate_to: "{{ kdump_ssh_server }}"
       register: __authorized_keys_before
+      delegate_to: "{{ kdump_ssh_server }}"
 
     - name: Run the role again
       include_role:
         name: linux-system-roles.kdump
 
+    - name: Delete user
+      user:
+        name: "{{ kdump_ssh_user }}"
+        state: absent
+
     - name: Get the authorized_keys contents after
       slurp:
         src: "{{ __authorized_keys_file.stat.path }}"
-      delegate_to: "{{ kdump_ssh_server }}"
       register: __authorized_keys_after
+      delegate_to: "{{ kdump_ssh_server }}"
 
     - name: Assert no changes to authorized_keys
       assert:
         that: __authorized_keys_before == __authorized_keys_after
+
+    - name: Get the ssh dir for the user after
+      stat:
+        path: "{{ __ssh_dir }}"
+      register: __ssh_dir_stat_after
+      delegate_to: "{{ kdump_ssh_server }}"
+
+    - name: Assert no changes to ssh dir
+      assert:
+        that:
+          - __ssh_dir_stat_before.stat.mode == __ssh_dir_stat_after.stat.mode
+          - __ssh_dir_stat_before.stat.uid == __ssh_dir_stat_after.stat.uid
+          - __ssh_dir_stat_before.stat.gid == __ssh_dir_stat_after.stat.gid

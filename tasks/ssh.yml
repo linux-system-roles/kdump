@@ -21,10 +21,19 @@
   register: __kdump_ssh_user_info
   delegate_to: "{{ kdump_ssh_server }}"
 
+- name: Set ssh file path
+  set_fact:
+    __kdump_ssh_path: "{{ __kdump_ssh_user_info.home ~ '/.ssh' }}"
+
 - name: Set authorized_keys file path
   set_fact:
-    __kdump_authorized_keys_path: "{{
-      __kdump_ssh_user_info.home ~ '/.ssh/authorized_keys' }}"
+    __kdump_authorized_keys_path: "{{ __kdump_ssh_path ~ '/authorized_keys' }}"
+
+- name: Get the ssh directory for the user
+  stat:
+    path: "{{ __kdump_ssh_path }}"
+  register: __kdump_ssh_path_stat
+  delegate_to: "{{ kdump_ssh_server }}"
 
 - name: Get the authorized_keys file for the user
   stat:
@@ -41,23 +50,38 @@
     - __kdump_authorized_keys_file.stat.isreg is defined
     - __kdump_authorized_keys_file.stat.isreg
 
-- name: Write new authorized_keys if needed
+- name: Handle authorized_keys update if needed
   vars:
     # note - Cg== is the newline character in base64
     __kdump_authorized_keys_lines: "{{
       (__kdump_authorized_keys.content | d('Cg==') | b64decode).split('\n') |
       reject('match', '^$') | list }}"
     __kdump_new_key: "{{ keydata.content | b64decode | trim }}"
-  copy:
-    content: "{{ ((__kdump_authorized_keys_lines + [__kdump_new_key]) |
-      join('\n')) ~ '\n' }}"
-    dest: "{{ __kdump_authorized_keys_file.stat.path |
-              d(__kdump_authorized_keys_path) }}"
-    group: "{{ __kdump_authorized_keys_file.stat.group | d(kdump_ssh_user) }}"
-    owner: "{{ __kdump_authorized_keys_file.stat.owner | d(kdump_ssh_user) }}"
-    mode: "{{ __kdump_authorized_keys_file.stat.mode | d('0600') }}"
-  delegate_to: "{{ kdump_ssh_server }}"
   when: not __kdump_new_key in __kdump_authorized_keys_lines
+  delegate_to: "{{ kdump_ssh_server }}"
+  block:
+    - name: Ensure ssh directory for authorized_keys if needed
+      file:
+        path: "{{ __kdump_ssh_path_stat.stat.path |
+          d(__kdump_ssh_path) }}"
+        state: directory
+        group: "{{ __kdump_ssh_path_stat.stat.gr_name |
+          d(kdump_ssh_user) }}"
+        owner: "{{ __kdump_ssh_path_stat.stat.pw_name |
+          d(kdump_ssh_user) }}"
+        mode: "{{ __kdump_ssh_path_stat.stat.mode | d('0700') }}"
+
+    - name: Write new authorized_keys if needed
+      copy:
+        content: "{{ ((__kdump_authorized_keys_lines + [__kdump_new_key]) |
+          join('\n')) ~ '\n' }}"
+        dest: "{{ __kdump_authorized_keys_file.stat.path |
+                  d(__kdump_authorized_keys_path) }}"
+        group: "{{ __kdump_authorized_keys_file.stat.gr_name |
+          d(kdump_ssh_user) }}"
+        owner: "{{ __kdump_authorized_keys_file.stat.pw_name |
+          d(kdump_ssh_user) }}"
+        mode: "{{ __kdump_authorized_keys_file.stat.mode | d('0600') }}"
 
 - name: Fetch the servers public key
   slurp:
