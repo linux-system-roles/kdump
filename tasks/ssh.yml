@@ -1,65 +1,38 @@
 ---
-- name: Check whether key exists
-  stat:
-    path: "{{ kdump_sshkey }}"
-  register: sshkey_stats
-
-- name: Create key
-  command: "/usr/bin/ssh-keygen -t rsa -f {{ kdump_sshkey }} -N '' "
-  when: not sshkey_stats.stat.exists
-  changed_when: true
+- name: Create key if it does not exist
+  command:
+    cmd: "/usr/bin/ssh-keygen -t rsa -f {{ kdump_sshkey }} -N '' "
+    creates: "{{ kdump_sshkey }}"
 
 - name: Fetch key
   slurp:
     src: "{{ kdump_sshkey }}.pub"
-  register: keydata
+  register: __kdump_keydata
 
-- name: Get userinfo for {{ kdump_ssh_user }}
-  user:
-    name: "{{ kdump_ssh_user }}"
-    state: present
-  register: __kdump_ssh_user_info
-  delegate_to: "{{ kdump_ssh_server }}"
-
-- name: Set ssh file path
-  set_fact:
-    __kdump_ssh_path: "{{ __kdump_ssh_user_info.home ~ '/.ssh' }}"
-
-- name: Set authorized_keys file path
-  set_fact:
-    __kdump_authorized_keys_path: "{{ __kdump_ssh_path ~ '/authorized_keys' }}"
-
-- name: Get the ssh directory for the user
-  stat:
-    path: "{{ __kdump_ssh_path }}"
-  register: __kdump_ssh_path_stat
-  delegate_to: "{{ kdump_ssh_server }}"
-
-- name: Get the authorized_keys file for the user
-  stat:
-    path: "{{ __kdump_authorized_keys_path }}"
-  register: __kdump_authorized_keys_file
-  delegate_to: "{{ kdump_ssh_server }}"
-
-- name: Get the authorized_keys contents, if any
-  slurp:
-    src: "{{ __kdump_authorized_keys_file.stat.path }}"
-  delegate_to: "{{ kdump_ssh_server }}"
-  register: __kdump_authorized_keys
-  when:
-    - __kdump_authorized_keys_file.stat.isreg is defined
-    - __kdump_authorized_keys_file.stat.isreg
-
-- name: Handle authorized_keys update if needed
+- name: Handle authorized_keys update
   vars:
-    # note - Cg== is the newline character in base64
-    __kdump_authorized_keys_lines: "{{
-      (__kdump_authorized_keys.content | d('Cg==') | b64decode).split('\n') |
-      reject('match', '^$') | list }}"
-    __kdump_new_key: "{{ keydata.content | b64decode | trim }}"
-  when: not __kdump_new_key in __kdump_authorized_keys_lines
+    __kdump_ssh_path: "{{ __kdump_ssh_user_info.home ~ '/.ssh' }}"
+    __kdump_authorized_keys_path: "{{
+      __kdump_ssh_user_info.home ~ '/.ssh/authorized_keys' }}"
+    __kdump_new_key: "{{ __kdump_keydata.content | b64decode | trim }}"
   delegate_to: "{{ kdump_ssh_server }}"
   block:
+    - name: Get userinfo for {{ kdump_ssh_user }}
+      user:
+        name: "{{ kdump_ssh_user }}"
+        state: present
+      register: __kdump_ssh_user_info
+
+    - name: Get the ssh directory for the user
+      stat:
+        path: "{{ __kdump_ssh_path }}"
+      register: __kdump_ssh_path_stat
+
+    - name: Get the authorized_keys file for the user
+      stat:
+        path: "{{ __kdump_authorized_keys_path }}"
+      register: __kdump_authorized_keys_file
+
     - name: Ensure ssh directory for authorized_keys if needed
       file:
         path: "{{ __kdump_ssh_path_stat.stat.path |
@@ -72,10 +45,11 @@
         mode: "{{ __kdump_ssh_path_stat.stat.mode | d('0700') }}"
 
     - name: Write new authorized_keys if needed
-      copy:
-        content: "{{ ((__kdump_authorized_keys_lines + [__kdump_new_key]) |
-          join('\n')) ~ '\n' }}"
-        dest: "{{ __kdump_authorized_keys_file.stat.path |
+      lineinfile:
+        line: "{{ __kdump_new_key }}"
+        state: present
+        create: true
+        path: "{{ __kdump_authorized_keys_file.stat.path |
                   d(__kdump_authorized_keys_path) }}"
         group: "{{ __kdump_authorized_keys_file.stat.gr_name |
           d(kdump_ssh_user) }}"
@@ -86,12 +60,12 @@
 - name: Fetch the servers public key
   slurp:
     src: /etc/ssh/ssh_host_rsa_key.pub
-  register: serverpubkey
+  register: __kdump_serverpubkey
   delegate_to: "{{ kdump_ssh_server }}"
 
 - name: Add the servers public key to known_hosts on managed node
   known_hosts:
-    key: "{{ __kdump_ssh_server_location }} {{ serverpubkey.content |
+    key: "{{ __kdump_ssh_server_location }} {{ __kdump_serverpubkey.content |
              b64decode }}"
     name: "{{ __kdump_ssh_server_location }}"
     path: /etc/ssh/ssh_known_hosts
