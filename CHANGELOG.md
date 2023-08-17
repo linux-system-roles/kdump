@@ -1,6 +1,14 @@
 Changelog
 =========
 
+[1.3.6] - 2023-08-17
+--------------------
+
+### Bug Fixes
+
+- fix: ensure .ssh directory exists for kdump_ssh_user on kdump_ssh_server (#164)
+- fix: Ensure authorized_keys management works with multiple hosts (#165)
+
 [1.3.5] - 2023-08-16
 --------------------
 
