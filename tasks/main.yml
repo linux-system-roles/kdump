@@ -34,6 +34,7 @@
   slurp:
     src: /sys/kernel/kexec_crash_size
   register: kexec_crash_size
+  until: kexec_crash_size is success
 
 - name: Set the kdump_reboot_required fact
   set_fact:
