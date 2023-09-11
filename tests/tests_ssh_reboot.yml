@@ -124,11 +124,6 @@
       include_role:
         name: linux-system-roles.kdump
 
-    - name: Delete user
-      user:
-        name: "{{ kdump_ssh_user }}"
-        state: absent
-
     - name: Get the authorized_keys contents after
       slurp:
         src: "{{ __authorized_keys_file.stat.path }}"
@@ -151,3 +146,10 @@
           - __ssh_dir_stat_before.stat.mode == __ssh_dir_stat_after.stat.mode
           - __ssh_dir_stat_before.stat.uid == __ssh_dir_stat_after.stat.uid
           - __ssh_dir_stat_before.stat.gid == __ssh_dir_stat_after.stat.gid
+
+    - name: Delete user
+      user:
+        name: "{{ kdump_ssh_user }}"
+        state: absent
+      register: __user_delete
+      until: __user_delete is success
