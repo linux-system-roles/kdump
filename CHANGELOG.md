@@ -1,6 +1,17 @@
 Changelog
 =========
 
+[1.3.8] - 2023-09-12
+--------------------
+
+### Bug Fixes
+
+- fix: retry read of kexec_crash_size (#169)
+
+### Other Changes
+
+- test: delete kdump user last, retry until success (#171)
+
 [1.3.7] - 2023-09-07
 --------------------
 
