@@ -6,7 +6,10 @@ __kdump_ssh_server_location: "{{ kdump_target.location |
                                  else kdump_ssh_server }}"
 
 __kdump_packages:
-  - "kexec-tools"
+  - grubby
+  - iproute  # for fact gathering for ip facts
+  - kexec-tools
+  - openssh-clients
 
 __kdump_required_facts:
   - all_ipv4_addresses

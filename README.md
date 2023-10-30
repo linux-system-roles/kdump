@@ -14,6 +14,20 @@ following configuration file:
 
 * `/etc/kdump.conf`
 
+## Requirements
+
+See below
+
+### Collection requirements
+
+The role requires external collections only for management of `rpm-ostree`
+nodes. Please run the following command to install them if you need to manage
+`rpm-ostree` nodes:
+
+```bash
+ansible-galaxy collection install -vv -r meta/collection-requirements.yml
+```
+
 ## Role Variables
 
 **kdump_target**: Can be specified to write vmcore to a location that is not in
@@ -88,6 +102,10 @@ Default: `false`
 **kdump_reboot_required**: The role sets this fact if the managed node requires
 reboot to complete kdump configuration. Re-execute the role after boot to ensure
 that kdump is working.
+
+## rpm-ostree
+
+See README-ostree.md
 
 ## License
 
