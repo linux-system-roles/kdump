@@ -136,11 +136,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1 class="toc-title">Contents</h1>
 <ul>
 <li><a href="#warning" id="toc-warning">Warning</a></li>
+<li><a href="#requirements" id="toc-requirements">Requirements</a>
+<ul>
+<li><a href="#collection-requirements"
+id="toc-collection-requirements">Collection requirements</a></li>
+</ul></li>
 <li><a href="#role-variables" id="toc-role-variables">Role
 Variables</a></li>
 <li><a href="#ansible-facts-returned-by-the-role"
 id="toc-ansible-facts-returned-by-the-role">Ansible Facts Returned by
 the Role</a></li>
+<li><a href="#rpm-ostree" id="toc-rpm-ostree">rpm-ostree</a></li>
 <li><a href="#license" id="toc-license">License</a></li>
 </ul>
 </nav>
@@ -154,30 +160,38 @@ following configuration file:</p>
 <ul>
 <li><code>/etc/kdump.conf</code></li>
 </ul>
+<h1 id="requirements">Requirements</h1>
+<p>See below</p>
+<h2 id="collection-requirements">Collection requirements</h2>
+<p>The role requires external collections only for management of
+<code>rpm-ostree</code> nodes. Please run the following command to
+install them if you need to manage <code>rpm-ostree</code> nodes:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ansible-galaxy</span> collection install <span class="at">-vv</span> <span class="at">-r</span> meta/collection-requirements.yml</span></code></pre></div>
 <h1 id="role-variables">Role Variables</h1>
 <p><strong>kdump_target</strong>: Can be specified to write vmcore to a
 location that is not in the root file system. If <code>type</code> is
 <code>raw</code> or a filesystem type, location points to a partition
 (by device node name, label, or uuid). For example:</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kdump_target</span><span class="kw">:</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> raw</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">location</span><span class="kw">:</span><span class="at"> /dev/sda1</span></span></code></pre></div>
-<p>or for an <code>ext4</code> filesystem:</p>
 <div class="sourceCode" id="cb2"><pre
 class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kdump_target</span><span class="kw">:</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> ext4</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">location</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;12e3e25f-534e-4007-a40c-e7e080a933ad&quot;</span></span></code></pre></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> raw</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">location</span><span class="kw">:</span><span class="at"> /dev/sda1</span></span></code></pre></div>
+<p>or for an <code>ext4</code> filesystem:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kdump_target</span><span class="kw">:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> ext4</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">location</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;12e3e25f-534e-4007-a40c-e7e080a933ad&quot;</span></span></code></pre></div>
 <p>If <code>type</code> is <code>ssh</code>, location points to a
 server: example:</p>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> ssh</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">location</span><span class="kw">:</span><span class="at"> user@example.com</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> ssh</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">location</span><span class="kw">:</span><span class="at"> user@example.com</span></span></code></pre></div>
 <p>Similarly for <code>nfs</code>, <code>location</code> points to an
 nfs server:</p>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> nfs</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">location</span><span class="kw">:</span><span class="at"> nfs.example.com</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">type</span><span class="kw">:</span><span class="at"> nfs</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">location</span><span class="kw">:</span><span class="at"> nfs.example.com</span></span></code></pre></div>
 <p>Only the <code>ssh</code> type is considered stable, support for the
 other types is experimental.</p>
 <p><strong>kdump_path</strong>: The path to which vmcore will be
@@ -212,6 +226,8 @@ the Role</h1>
 <p><strong>kdump_reboot_required</strong>: The role sets this fact if
 the managed node requires reboot to complete kdump configuration.
 Re-execute the role after boot to ensure that kdump is working.</p>
+<h1 id="rpm-ostree">rpm-ostree</h1>
+<p>See README-ostree.md</p>
 <h1 id="license">License</h1>
 <p>MIT</p>
 </article>
