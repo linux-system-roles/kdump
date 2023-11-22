@@ -6,6 +6,8 @@
   package:
     name: "{{ __kdump_packages }}"
     state: present
+    use: "{{ (__kdump_is_ostree | d(false)) |
+             ternary('ansible.posix.rhel_rpm_ostree', omit) }}"
 
 - name: Ensure that kdump is enabled
   service:

@@ -95,20 +95,21 @@
         - ansible_distribution_major_version == '6'
         - kdump_test_ssh_server_outside == inventory_hostname
 
-    - name: Skip the test on ostree systems - does not like the dracut rebuild
-      vars:
-        ostree_pkg_mgr: ansible.posix.rhel_rpm_ostree
-        ostree_booted_file: /run/ostree-booted
-      when: ansible_facts.pkg_mgr | d("") != ostree_pkg_mgr
+    - name: Determine if system is ostree and set flag
+      when: not __kdump_is_ostree is defined
       block:
         - name: Check if system is ostree
           stat:
-            path: "{{ ostree_booted_file }}"
+            path: /run/ostree-booted
           register: __ostree_booted_stat
 
-        - name: Skip the test on ostree systems
-          meta: end_host
-          when: __ostree_booted_stat.stat.exists
+        - name: Set flag to indicate system is ostree
+          set_fact:
+            __kdump_is_ostree: "{{ __ostree_booted_stat.stat.exists }}"
+
+    - name: Skip the test on ostree systems
+      meta: end_host
+      when: __kdump_is_ostree | bool
 
     - name: Run the role and reboot if necessary
       include_role:
