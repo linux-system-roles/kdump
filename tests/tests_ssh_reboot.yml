@@ -33,7 +33,7 @@
     # This is the outside address. Ansible will connect to it to
     # copy the ssh key.
     kdump_ssh_server: "{{ kdump_test_ssh_server_outside }}"
-    kdump_path: /tmp/test
+    kdump_path: /tmp/tests_ssh_reboot
     kdump_target:
       type: ssh
       # This is the ssh dump server address visible from inside
@@ -169,3 +169,9 @@
         state: absent
       register: __user_delete
       until: __user_delete is success
+
+    - name: Cleanup kdump_path
+      file:
+        path: "{{ kdump_path }}"
+        state: absent
+      delegate_to: "{{ kdump_ssh_server }}"
