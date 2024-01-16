@@ -1,6 +1,14 @@
 Changelog
 =========
 
+[1.4.4] - 2024-01-16
+--------------------
+
+### Other Changes
+
+- ci: support ansible-lint and ansible-test 2.16 (#192)
+- ci: Use supported ansible-lint action; run ansible-lint against the collection (#193)
+
 [1.4.3] - 2023-12-08
 --------------------
 
