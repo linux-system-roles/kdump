@@ -1,6 +1,15 @@
 Changelog
 =========
 
+[1.4.5] - 2024-04-04
+--------------------
+
+### Other Changes
+
+- ci: fix python unit test - copy pytest config to tests/unit (#195)
+- ci: bump ansible/ansible-lint from 6 to 24 (#196)
+- ci: bump mathieudutour/github-tag-action from 6.1 to 6.2 (#197)
+
 [1.4.4] - 2024-01-16
 --------------------
 
@@ -76,7 +85,6 @@ Changelog
   - Remove badges from README.md prior to converting to HTML
   
   Signed-off-by: Sergei Petrosian <spetrosi@redhat.com>
-
 
 [1.3.6] - 2023-08-17
 --------------------
