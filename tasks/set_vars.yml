@@ -16,3 +16,18 @@
     - name: Set flag to indicate system is ostree
       set_fact:
         __kdump_is_ostree: "{{ __ostree_booted_stat.stat.exists }}"
+
+- name: Set platform/version specific variables
+  include_vars: "{{ __vars_file }}"
+  loop:
+    - "{{ ansible_facts['os_family'] }}.yml"
+    - "{{ ansible_facts['distribution'] }}.yml"
+    - >-
+      {{ ansible_facts['distribution'] ~ '_' ~
+      ansible_facts['distribution_major_version'] }}.yml
+    - >-
+      {{ ansible_facts['distribution'] ~ '_' ~
+      ansible_facts['distribution_version'] }}.yml
+  vars:
+    __vars_file: "{{ role_path }}/vars/{{ item }}"
+  when: __vars_file is file
