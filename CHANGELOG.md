@@ -1,6 +1,18 @@
 Changelog
 =========
 
+[1.4.7] - 2024-07-02
+--------------------
+
+### Bug Fixes
+
+- fix: el10 kdump role should depend on kdump-utils (#204)
+- fix: add support for EL10 (#206)
+
+### Other Changes
+
+- ci: ansible-lint action now requires absolute directory (#205)
+
 [1.4.6] - 2024-06-11
 --------------------
 
