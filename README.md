@@ -1,7 +1,7 @@
 
 # Ansible Role: Kernel Crash Dump
 
-[![ansible-lint.yml](https://github.com/linux-system-roles/kdump/actions/workflows/ansible-lint.yml/badge.svg)](https://github.com/linux-system-roles/kdump/actions/workflows/ansible-lint.yml) [![ansible-test.yml](https://github.com/linux-system-roles/kdump/actions/workflows/ansible-test.yml/badge.svg)](https://github.com/linux-system-roles/kdump/actions/workflows/ansible-test.yml) [![markdownlint.yml](https://github.com/linux-system-roles/kdump/actions/workflows/markdownlint.yml/badge.svg)](https://github.com/linux-system-roles/kdump/actions/workflows/markdownlint.yml) [![woke.yml](https://github.com/linux-system-roles/kdump/actions/workflows/woke.yml/badge.svg)](https://github.com/linux-system-roles/kdump/actions/workflows/woke.yml)
+[![ansible-lint.yml](https://github.com/linux-system-roles/kdump/actions/workflows/ansible-lint.yml/badge.svg)](https://github.com/linux-system-roles/kdump/actions/workflows/ansible-lint.yml) [![ansible-test.yml](https://github.com/linux-system-roles/kdump/actions/workflows/ansible-test.yml/badge.svg)](https://github.com/linux-system-roles/kdump/actions/workflows/ansible-test.yml) [![markdownlint.yml](https://github.com/linux-system-roles/kdump/actions/workflows/markdownlint.yml/badge.svg)](https://github.com/linux-system-roles/kdump/actions/workflows/markdownlint.yml) [![tft.yml](https://github.com/linux-system-roles/kdump/actions/workflows/tft.yml/badge.svg)](https://github.com/linux-system-roles/kdump/actions/workflows/tft.yml) [![woke.yml](https://github.com/linux-system-roles/kdump/actions/workflows/woke.yml/badge.svg)](https://github.com/linux-system-roles/kdump/actions/workflows/woke.yml)
 
 An ansible role which configures kdump.
 
