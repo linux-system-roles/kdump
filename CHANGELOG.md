@@ -1,6 +1,15 @@
 Changelog
 =========
 
+[1.4.10] - 2025-02-04
+--------------------
+
+### Other Changes
+
+- ci: ansible-plugin-scan is disabled for now (#223)
+- ci: bump ansible-lint to v25; provide collection requirements for ansible-lint (#226)
+- test: fix ssh wrapper test (#227)
+
 [1.4.9] - 2025-01-09
 --------------------
 
