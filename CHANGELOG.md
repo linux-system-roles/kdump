@@ -1,6 +1,25 @@
 Changelog
 =========
 
+[1.4.11] - 2025-07-02
+--------------------
+
+### Other Changes
+
+- ci: Check spelling with codespell (#229)
+- ci: Add test plan that runs CI tests and customize it for each role (#230)
+- ci: In test plans, prefix all relate variables with SR_ (#231)
+- ci: Fix bug with ARTIFACTS_URL after prefixing with SR_ (#232)
+- ci: several changes related to new qemu test, ansible-lint, python versions, ubuntu versions (#233)
+- ci: use tox-lsr 3.6.0; improve qemu test logging (#234)
+- ci: skip storage scsi, nvme tests in github qemu ci (#235)
+- ci: bump sclorg/testing-farm-as-github-action from 3 to 4 (#236)
+- ci: bump tox-lsr to 3.8.0; rename qemu/kvm tests (#237)
+- ci: Add Fedora 42; use tox-lsr 3.9.0; use lsr-report-errors for qemu tests (#238)
+- ci: Add support for bootc end-to-end validation tests (#239)
+- ci: Use ansible 2.19 for fedora 42 testing; support python 3.13 (#240)
+- refactor: support ansible 2.19 (#241)
+
 [1.4.10] - 2025-02-04
 --------------------
 
