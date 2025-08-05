@@ -4,6 +4,10 @@
   tags:
     - 'tests::slow'
   tasks:
+    - name: Save connection method
+      set_fact:
+        __ansible_connection: "{{ ansible_connection }}"
+
     - name: Create temporary file
       tempfile:
         state: file
