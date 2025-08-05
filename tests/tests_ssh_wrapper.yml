@@ -4,6 +4,10 @@
   tags:
     - 'tests::slow'
   tasks:
+    - name: Save connection method
+      set_fact:
+        __ansible_connection: "{{ ansible_connection }}"
+
     - name: Create temporary file
       tempfile:
         state: file
@@ -17,7 +21,6 @@
         dest: "{{ tempinventory.path }}"
         mode: "0644"
       delegate_to: localhost
-
 
 - name: Run tests_ssh.yml normally
   tags:
