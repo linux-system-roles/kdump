@@ -140,6 +140,9 @@
       include_role:
         name: linux-system-roles.kdump
 
+    - name: Notify and run handlers again
+      meta: flush_handlers
+
     - name: Get the authorized_keys contents after
       slurp:
         src: "{{ __authorized_keys_file.stat.path }}"
