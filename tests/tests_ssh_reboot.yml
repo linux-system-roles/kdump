@@ -1,6 +1,7 @@
 ---
 - name: Ensure that the rule runs with ssh
   hosts: all
+  gather_facts: true
   vars:
     # this is the outside address under which the ssh dump server is
     # known and ansible is supposed to be configured to be able to
@@ -63,6 +64,19 @@
       delegate_to: "{{ kdump_test_ssh_server_outside }}"
       delegate_facts: true
 
+    - name: Debug0
+      debug:
+        msg: facts for {{ item }} {{ hostvars[item]["ansible_facts"] | to_nice_json }}
+      loop: "{{ hostvars.keys() | list }}"
+
+    - name: Debug1
+      debug:
+        msg: |
+          kdump_test_ssh_server_inside {{ kdump_test_ssh_server_inside }}
+          kdump_test_ssh_server_outside {{ kdump_test_ssh_server_outside }}
+          kdump_test_ssh_source {{ kdump_test_ssh_source }}
+          inventory_hostname {{ inventory_hostname }}
+
     - name: Create a kdump user on kdump_ssh_server
       user:
         name: kdump_ssh_user
@@ -114,6 +128,10 @@
     - name: Run the role and reboot if necessary
       include_role:
         name: linux-system-roles.kdump
+
+    - name: Debug2
+      command: cat /etc/kdump.conf
+      changed_when: false
 
     - name: Flush handlers
       meta: flush_handlers
