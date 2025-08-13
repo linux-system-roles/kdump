@@ -81,6 +81,9 @@
       include_role:
         name: linux-system-roles.kdump
 
+    - name: Notify and run handlers again
+      meta: flush_handlers
+
     - name: Check for crashkernel, grubby settings again
       when: is_el9 or is_el7_or_el8
       block:

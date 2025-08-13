@@ -94,6 +94,9 @@
                 ansible_failed_result.msg
               - kdump_reboot_required | bool
 
+    - name: Notify and run handlers
+      meta: flush_handlers
+
     - name: Cleanup kdump_path
       file:
         path: "{{ kdump_path }}"
