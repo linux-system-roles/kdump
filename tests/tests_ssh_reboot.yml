@@ -125,13 +125,28 @@
       meta: end_host
       when: __kdump_is_ostree | bool
 
-    - name: Run the role and reboot if necessary
-      include_role:
-        name: linux-system-roles.kdump
+    - name: Try the role, catch errors
+      block:
+        - name: Run the role and reboot if necessary
+          include_role:
+            name: linux-system-roles.kdump
+            public: true
+      rescue:
+        - name: Set flag to indicate role failed
+          set_fact:
+            __role_failed: true
 
     - name: Debug2
-      command: cat /etc/kdump.conf
+      shell: |
+        set -x
+        exec 1>&2
+        cat /etc/kdump.conf || :
+        getent hosts {{ kdump_test_ssh_server_outside }} || :
+        getent hosts {{ kdump_test_ssh_server_inside }} || :
+        getent hosts {{ kdump_ssh_server }} || :
+        timeout 5 ssh -i {{ kdump_sshkey }} -o LogLevel=DEBUG {{ kdump_target.location }} "ls -alrtF /tmp" || :
       changed_when: false
+      failed_when: __role_failed | d(false)
 
     - name: Flush handlers
       meta: flush_handlers
