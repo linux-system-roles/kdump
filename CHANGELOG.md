@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[1.4.13] - 2025-08-18
+--------------------
+
+### Other Changes
+
+- test: run handlers after each role invocation to ensure role works (#245)
+
 [1.4.12] - 2025-08-08
 --------------------
 
