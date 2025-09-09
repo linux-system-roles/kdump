@@ -37,6 +37,8 @@
         - name: Check parameters in conf file
           command: grep '^{{ item.param }} {{ item.value }}$' /etc/kdump.conf
           changed_when: false
+          # not really invalid - see https://github.com/ansible/ansible-lint/issues/4702
+          # noqa jinja[invalid]
           loop: "{{ params + (is_el9 | ternary(el9_params, not_el9_params)) }}"
           vars:
             params:
@@ -90,6 +92,8 @@
         - name: Check parameters in conf file
           command: grep '^{{ item.param }} {{ item.value }}$' /etc/kdump.conf
           changed_when: false
+          # not really invalid - see https://github.com/ansible/ansible-lint/issues/4702
+          # noqa jinja[invalid]
           loop: "{{ params + (is_el9 | ternary(el9_params, [])) }}"
           vars:
             el9_params:
