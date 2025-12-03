@@ -1,0 +1,5 @@
+# {{ ansible_managed }}
+
+{% for key, value in kdump_kdump-tools.items() %}
+{{ key }} = {{ value }}
+{% endfor %}
