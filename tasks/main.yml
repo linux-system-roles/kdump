@@ -11,7 +11,7 @@
 
 - name: Ensure that kdump is enabled
   service:
-    name: kdump
+    name: "{{ __kdump_service }}"
     enabled: true
 
 - name: Include SSH tasks
@@ -31,6 +31,16 @@
     backup: true
     mode: "{{ __kdump_conf.stat.mode | d('0644') }}"
   notify: Restart kdump
+  when: ansible_facts['distribution'] in ['RedHat', 'CentOS', 'Fedora']
+
+- name: Generate /etc/default/kdump-tools
+  template:
+    src: kdump-tools.j2
+    dest: /etc/default/kdump-tools
+    backup: true
+    mode: "{{ __kdump_conf.stat.mode | d('0644') }}"
+  notify: Restart kdump
+  when: ansible_facts['distribution'] in ['Ubuntu']
 
 - name: Find out reserved memory for the crash kernel
   slurp:
@@ -85,6 +95,6 @@
 # to explicitly start kdump to rebuild initrd.
 - name: Ensure that kdump is started
   service:
-    name: kdump
+    name: "{{ __kdump_service }}"
     state: started
   register: __kdump_service_start

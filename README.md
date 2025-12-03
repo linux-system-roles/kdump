@@ -12,7 +12,8 @@ host. Previous settings will be lost, even if they are not specified
 in the role variables. Currently, this includes replacing at least the
 following configuration file:
 
-* `/etc/kdump.conf`
+* `/etc/kdump.conf` (RedHat like OS)
+* `/etc/default/kdump-tools` (Ubuntu only yet)
 
 ## Requirements
 
@@ -96,6 +97,19 @@ reboot the system if required, set this variable to `true`. You do not need to
 re-execute the role after boot.
 
 Default: `false`
+
+## Ubuntu
+
+To configure the file over-writing default, use for example:
+```yaml
+kdump_kdump_tools:
+  USE_KDUMP: 1
+  KDUMP_KERNEL: /var/lib/kdump/vmlinuz
+  KDUMP_INITRD: /var/lib/kdump/initrd.img
+  KDUMP_COREDIR: "/var/crash"
+  MAKEDUMP_ARGS: "-c -d 31"
+  KDUMP_FAIL_CMD: "reboot -f"
+```
 
 ## Ansible Facts Returned by the Role
 
