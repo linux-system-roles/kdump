@@ -13,7 +13,7 @@ in the role variables. Currently, this includes replacing at least the
 following configuration file:
 
 * `/etc/kdump.conf` (RedHat like OS)
-* `/etc/default/kdump-tools` (Ubuntu only yet)
+* `/etc/default/kdump-tools` (Ubuntu only, for now)
 
 ## Requirements
 
