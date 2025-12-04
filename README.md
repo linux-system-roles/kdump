@@ -101,6 +101,7 @@ Default: `false`
 ## Ubuntu
 
 To configure the default file-overwriting behavior, use for example:
+
 ```yaml
 kdump_kdump_tools:
   USE_KDUMP: 1
