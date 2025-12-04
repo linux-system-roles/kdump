@@ -26,7 +26,7 @@
 
 - name: Generate kdump configuration file
   template:
-    src: "{{ __kdump_conf_file.split('/')[-1] }}.j2"
+    src: "{{ __kdump_conf_file | basename }}.j2"
     dest: "{{ __kdump_conf_file }}"
     backup: true
     mode: "{{ __kdump_conf.stat.mode | d('0644') }}"
