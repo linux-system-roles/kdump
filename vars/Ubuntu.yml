@@ -6,4 +6,5 @@ __kdump_packages:
   - linux-crashdump
   - openssh-client
 
+__kdump_conf_file: /etc/default/kdump-tools
 __kdump_service: kdump-tools
