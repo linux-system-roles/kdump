@@ -19,28 +19,18 @@
   when:
     - kdump_target.type | d(none) == 'ssh'
 
-- name: Get mode of /etc/kdump.conf if it exists
+- name: Get mode of kdump configuration file if it exists
   stat:
-    path: /etc/kdump.conf
+    path: "{{ __kdump_conf_file }}"
   register: __kdump_conf
 
-- name: Generate /etc/kdump.conf
+- name: Generate kdump configuration file
   template:
-    src: kdump.conf.j2
-    dest: /etc/kdump.conf
+    src: "{{ __kdump_conf_file.split('/')[-1] }}.j2"
+    dest: "{{ __kdump_conf_file }}"
     backup: true
     mode: "{{ __kdump_conf.stat.mode | d('0644') }}"
   notify: Restart kdump
-  when: ansible_facts['os_family'] == 'RedHat'
-
-- name: Generate /etc/default/kdump-tools
-  template:
-    src: kdump-tools.j2
-    dest: /etc/default/kdump-tools
-    backup: true
-    mode: "{{ __kdump_conf.stat.mode | d('0644') }}"
-  notify: Restart kdump
-  when: ansible_facts['distribution'] in ['Ubuntu']
 
 - name: Find out reserved memory for the crash kernel
   slurp:

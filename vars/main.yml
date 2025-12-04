@@ -45,3 +45,5 @@ __kdump_is_rh_distro_fedora: "{{ ansible_distribution in __kdump_rh_distros_fedo
 # END - DO NOT EDIT THIS BLOCK - rh distros variables
 
 __kdump_service: kdump
+
+__kdump_conf_file: /etc/kdump.conf
