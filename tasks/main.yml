@@ -31,7 +31,7 @@
     backup: true
     mode: "{{ __kdump_conf.stat.mode | d('0644') }}"
   notify: Restart kdump
-  when: ansible_facts['distribution'] in ['RedHat', 'CentOS', 'Fedora']
+  when: ansible_facts['os_family'] == 'RedHat'
 
 - name: Generate /etc/default/kdump-tools
   template:
