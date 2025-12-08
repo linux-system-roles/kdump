@@ -58,15 +58,13 @@
       when: ansible_facts['distribution_major_version'] | int <= 8
       changed_when: true
 
-- name: Update crashkernel setting if needed (Suse)
+- name: Use kdumptool commandline -u (SLES 16+/openSUSE)
+  command: /usr/sbin/kdumptool commandline -u
   when:
     - kdump_reboot_required | bool
     - ansible_facts['os_family'] == 'Suse'
-  block:
-    - name: Use kdumptool commandline -u (SLES 16+/openSUSE)
-      command: /usr/sbin/kdumptool commandline -u
-      when: ansible_facts['distribution_major_version'] | default(0) | int >= 16
-      changed_when: true
+    - ansible_facts['distribution_major_version'] | default(0) | int >= 16
+  changed_when: true
 
 - name: Fail if reboot is required and kdump_reboot_ok is false
   fail:
