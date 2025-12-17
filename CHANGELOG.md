@@ -1,6 +1,18 @@
 Changelog
 =========
 
+[1.5.0] - 2025-12-17
+--------------------
+
+### New Features
+
+- feat: Ubuntu support (#265)
+
+### Other Changes
+
+- ci: Bump actions/checkout from 5 to 6 (#264)
+- ci: add qemu tests for Fedora 43, drop Fedora 41 (#266)
+
 [1.4.15] - 2025-11-17
 --------------------
 
