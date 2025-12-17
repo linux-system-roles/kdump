@@ -144,6 +144,7 @@ id="toc-collection-requirements">Collection requirements</a></li>
 </ul></li>
 <li><a href="#role-variables" id="toc-role-variables">Role
 Variables</a></li>
+<li><a href="#ubuntu" id="toc-ubuntu">Ubuntu</a></li>
 <li><a href="#ansible-facts-returned-by-the-role"
 id="toc-ansible-facts-returned-by-the-role">Ansible Facts Returned by
 the Role</a></li>
@@ -159,7 +160,8 @@ Previous settings will be lost, even if they are not specified in the
 role variables. Currently, this includes replacing at least the
 following configuration file:</p>
 <ul>
-<li><code>/etc/kdump.conf</code></li>
+<li><code>/etc/kdump.conf</code> (RedHat like OS)</li>
+<li><code>/etc/default/kdump-tools</code> (Ubuntu only, for now)</li>
 </ul>
 <h1 id="requirements">Requirements</h1>
 <p>See below</p>
@@ -222,6 +224,17 @@ reboot the managed node when needed. If you want the role to reboot the
 system if required, set this variable to <code>true</code>. You do not
 need to re-execute the role after boot.</p>
 <p>Default: <code>false</code></p>
+<h1 id="ubuntu">Ubuntu</h1>
+<p>To configure the default file-overwriting behavior, use for
+example:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kdump_kdump_tools</span><span class="kw">:</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">USE_KDUMP</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">KDUMP_KERNEL</span><span class="kw">:</span><span class="at"> /var/lib/kdump/vmlinuz</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">KDUMP_INITRD</span><span class="kw">:</span><span class="at"> /var/lib/kdump/initrd.img</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">KDUMP_COREDIR</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;/var/crash&quot;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">MAKEDUMP_ARGS</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;-c -d 31&quot;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">KDUMP_FAIL_CMD</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;reboot -f&quot;</span></span></code></pre></div>
 <h1 id="ansible-facts-returned-by-the-role">Ansible Facts Returned by
 the Role</h1>
 <p><strong>kdump_reboot_required</strong>: The role sets this fact if
