@@ -58,6 +58,14 @@
       when: ansible_facts['distribution_major_version'] | int <= 8
       changed_when: true
 
+- name: Use kdumptool commandline -u (SLES 16+/openSUSE)
+  command: /usr/sbin/kdumptool commandline -u
+  when:
+    - kdump_reboot_required | bool
+    - ansible_facts['os_family'] == 'Suse'
+    - ansible_facts['distribution_major_version'] | default(0) | int >= 16
+  changed_when: true
+
 - name: Fail if reboot is required and kdump_reboot_ok is false
   fail:
     msg: >-
@@ -88,3 +96,4 @@
     name: "{{ __kdump_service }}"
     state: started
   register: __kdump_service_start
+  when: not kdump_reboot_required | bool
