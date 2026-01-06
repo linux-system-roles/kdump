@@ -5,10 +5,16 @@ all:
       ansible_connection: local
       ansible_host: localhost
 {% else %}
-{%   for key in ["ansible_all_ipv4_addresses", "ansible_all_ipv6_addresses",
-                 "ansible_default_ipv4", "ansible_default_ipv6", "ansible_host",
-                 "ansible_port", "ansible_ssh_common_args",
-                 "ansible_ssh_private_key_file","ansible_user"] %}
+{# Facts - these are accessed via ansible_facts and written with legacy key names #}
+{%   for key in ['all_ipv4_addresses', 'all_ipv6_addresses',
+                 'default_ipv4', 'default_ipv6'] %}
+{%     if key in hostvars[inventory_hostname]['ansible_facts'] %}
+      ansible_{{ key }}: {{ hostvars[inventory_hostname]['ansible_facts'][key] }}
+{%     endif %}
+{%   endfor %}
+{# Connection variables - these are accessed directly #}
+{%   for key in ['ansible_host', 'ansible_port', 'ansible_ssh_common_args',
+                 'ansible_ssh_private_key_file', 'ansible_user'] %}
 {%     if key in hostvars[inventory_hostname] %}
       {{ key }}: {{ hostvars[inventory_hostname][key] }}
 {%     endif %}

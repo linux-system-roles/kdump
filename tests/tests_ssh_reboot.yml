@@ -15,8 +15,8 @@
     # to itself.
     kdump_test_ssh_server_outside: "{{ inventory_hostname }}"
     kdump_test_ssh_source: "{{
-      ansible_env['SSH_CONNECTION'].split()[0]
-      if 'SSH_CONNECTION' in ansible_env
+      ansible_facts['env']['SSH_CONNECTION'].split()[0]
+      if 'SSH_CONNECTION' in ansible_facts['env']
       else '127.0.0.1' }}"
 
     # this is the address at which the ssh dump server can be reached
@@ -24,10 +24,10 @@
     kdump_test_ssh_server_inside: >-
       {{
       kdump_test_ssh_source if kdump_test_ssh_source in
-      hostvars[kdump_test_ssh_server_outside]['ansible_all_ipv4_addresses']
-      + hostvars[kdump_test_ssh_server_outside]['ansible_all_ipv6_addresses']
+      hostvars[kdump_test_ssh_server_outside]['ansible_facts']['all_ipv4_addresses']
+      + hostvars[kdump_test_ssh_server_outside]['ansible_facts']['all_ipv6_addresses']
       else
-      hostvars[kdump_test_ssh_server_outside]['ansible_default_ipv4']['address']
+      hostvars[kdump_test_ssh_server_outside]['ansible_facts']['default_ipv4']['address']
       }}
 
     # This is the outside address. Ansible will connect to it to
@@ -82,8 +82,8 @@
       debug:
         msg: Skipping the test on EL 6 because control node == managed node
       when:
-        - ansible_distribution in ['CentOS','RedHat']
-        - ansible_distribution_major_version == '6'
+        - ansible_facts['distribution'] in ['CentOS','RedHat']
+        - ansible_facts['distribution_major_version'] == '6'
         - kdump_test_ssh_server_outside == inventory_hostname
 
     # The skip is required on EL 6 because mkdumprd on EL 6 does not work when
@@ -91,8 +91,8 @@
     - name: Skip the test on EL 6 when control node == managed node
       meta: end_host
       when:
-        - ansible_distribution in ['CentOS','RedHat']
-        - ansible_distribution_major_version == '6'
+        - ansible_facts['distribution'] in ['CentOS','RedHat']
+        - ansible_facts['distribution_major_version'] == '6'
         - kdump_test_ssh_server_outside == inventory_hostname
 
     - name: Determine if system is ostree and set flag

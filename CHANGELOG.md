@@ -305,7 +305,7 @@ Changelog
 
 ### Bug Fixes
 
-- Use ansible_os_family in template (#133)
+- Use ansible_facts["os_family"] in template (#133)
 
 ### Other Changes
 
