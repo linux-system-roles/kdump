@@ -14,10 +14,6 @@
     # but is less realistic, as in practice a host can not dump core
     # to itself.
     kdump_test_ssh_server_outside: "{{ inventory_hostname }}"
-    kdump_test_ssh_source: "{{
-      ansible_facts['env']['SSH_CONNECTION'].split()[0]
-      if 'SSH_CONNECTION' in ansible_facts['env']
-      else '127.0.0.1' }}"
 
     # this is the address at which the ssh dump server can be reached
     # from the managed host. Dumps will be uploaded there.
@@ -77,6 +73,10 @@
           __user_info.home ~ '/.ssh' }}"
         __authorized_keys_path: "{{
           __user_info.home ~ '/.ssh/authorized_keys' }}"
+        kdump_test_ssh_source: "{{
+          ansible_facts['env']['SSH_CONNECTION'].split()[0]
+          if 'SSH_CONNECTION' in ansible_facts['env']
+          else '127.0.0.1' }}"
 
     - name: Print message that this test is skipped on EL 6
       debug:
@@ -112,8 +112,7 @@
       when: __kdump_is_ostree | bool
 
     - name: Run the role and reboot if necessary
-      include_role:
-        name: linux-system-roles.kdump
+      include_tasks: tasks/run_role_with_clear_facts.yml
 
     - name: Flush handlers
       meta: flush_handlers
@@ -137,8 +136,7 @@
       delegate_to: "{{ kdump_ssh_server }}"
 
     - name: Run the role again
-      include_role:
-        name: linux-system-roles.kdump
+      include_tasks: tasks/run_role_with_clear_facts.yml
 
     - name: Notify and run handlers again
       meta: flush_handlers

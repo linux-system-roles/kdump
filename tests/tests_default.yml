@@ -1,15 +1,13 @@
 ---
 - name: Ensure that the rule runs with default parameters
   hosts: all
-  gather_facts: false
   tasks:
     - name: >-
         The role requires reboot only on specific systems. Hence running the
         role in a rescue block to catch when it fails with reboot.
       block:
         - name: Run the role. If reboot is not required - the play succeeds.
-          include_role:
-            name: linux-system-roles.kdump
+          include_tasks: tasks/run_role_with_clear_facts.yml
       rescue:
         - name: If reboot is required - assert the expected fail message
           assert:
