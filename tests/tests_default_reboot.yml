@@ -9,9 +9,9 @@
     - tests::reboot
   tasks:
     - name: Run the role and reboot if necessary
-      include_role:
-        name: linux-system-roles.kdump
-        public: true
+      include_tasks: tasks/run_role_with_clear_facts.yml
+      vars:
+        __sr_public: true
 
     - name: Notify and run handlers
       meta: flush_handlers
@@ -80,8 +80,7 @@
         kdump_dracut_args: --print-cmdline
 
     - name: Run the role again with new parameters
-      include_role:
-        name: linux-system-roles.kdump
+      include_tasks: tasks/run_role_with_clear_facts.yml
 
     - name: Notify and run handlers again
       meta: flush_handlers

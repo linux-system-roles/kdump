@@ -14,10 +14,6 @@
     # but is less realistic, as in practice a host can not dump core
     # to itself.
     kdump_test_ssh_server_outside: "{{ inventory_hostname }}"
-    kdump_test_ssh_source: "{{
-      ansible_facts['env']['SSH_CONNECTION'].split()[0]
-      if 'SSH_CONNECTION' in ansible_facts['env']
-      else '127.0.0.1' }}"
 
     # this is the address at which the ssh dump server can be reached
     # from the managed host. Dumps will be uploaded there.
@@ -78,13 +74,22 @@
         - ansible_facts['distribution_major_version'] == '6'
         - kdump_test_ssh_server_outside == inventory_hostname
 
+    # because this relies on ansible_facts['env'], it must be set before
+    # the role is run because ansible_facts['env'] is cleared by the test
+    # and the role does not gather that fact.
+    - name: Set kdump_test_ssh_source
+      set_fact:
+        kdump_test_ssh_source: "{{
+          ansible_facts['env']['SSH_CONNECTION'].split()[0]
+          if 'SSH_CONNECTION' in ansible_facts['env']
+          else '127.0.0.1' }}"
+
     - name: >-
         The role requires reboot only on specific systems. Hence running the
         role in a rescue block to catch when it fails with reboot.
       block:
         - name: Run the role. If reboot is not required - the play succeeds.
-          include_role:
-            name: linux-system-roles.kdump
+          include_tasks: tasks/run_role_with_clear_facts.yml
       rescue:
         - name: If reboot is required - assert the expected fail message
           assert:
