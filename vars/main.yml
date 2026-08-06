@@ -26,6 +26,8 @@ __kdump_required_facts:
 __kdump_required_facts_subsets: "{{ ['!all', '!min'] +
   __kdump_required_facts }}"
 
+__kdump_write_log_file: false
+
 # BEGIN - DO NOT EDIT THIS BLOCK - rh distros variables
 # Ansible distribution identifiers that the role treats like RHEL
 __kdump_rh_distros:
