@@ -15,28 +15,10 @@
     # to itself.
     kdump_test_ssh_server_outside: "{{ inventory_hostname }}"
 
-    # this is the address at which the ssh dump server can be reached
-    # from the managed host. Dumps will be uploaded there.
-    kdump_test_ssh_server_inside: >-
-      {{
-      kdump_test_ssh_source if kdump_test_ssh_source in
-      hostvars[kdump_test_ssh_server_outside]['ansible_facts']['all_ipv4_addresses']
-      + hostvars[kdump_test_ssh_server_outside]['ansible_facts']['all_ipv6_addresses']
-      else
-      hostvars[kdump_test_ssh_server_outside]['ansible_facts']['default_ipv4']['address']
-      }}
-
     # This is the outside address. Ansible will connect to it to
     # copy the ssh key.
     kdump_ssh_server: "{{ kdump_test_ssh_server_outside }}"
     kdump_path: /tmp/tests_ssh_reboot
-    kdump_target:
-      type: ssh
-      # This is the ssh dump server address visible from inside
-      # the machine being configured. Dumps are to be copied
-      # there.
-      location: "{{ kdump_ssh_user }}@{{ kdump_test_ssh_server_inside }}"
-
     kdump_reboot_ok: true
   tags:
     - tests::reboot
@@ -77,6 +59,23 @@
           ansible_facts['env']['SSH_CONNECTION'].split()[0]
           if 'SSH_CONNECTION' in ansible_facts['env']
           else '127.0.0.1' }}"
+
+    - name: Set kdump_test_ssh_server_inside
+      set_fact:
+        kdump_test_ssh_server_inside: >-
+          {{
+          kdump_test_ssh_source if kdump_test_ssh_source in
+          hostvars[kdump_test_ssh_server_outside]['ansible_facts']['all_ipv4_addresses']
+          + hostvars[kdump_test_ssh_server_outside]['ansible_facts']['all_ipv6_addresses']
+          else
+          hostvars[kdump_test_ssh_server_outside]['ansible_facts']['default_ipv4']['address']
+          }}
+
+    - name: Set kdump_target
+      set_fact:
+        kdump_target:
+          type: ssh
+          location: "{{ kdump_ssh_user }}@{{ kdump_test_ssh_server_inside }}"
 
     - name: Print message that this test is skipped on EL 6
       debug:
