@@ -1,0 +1,90 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: The kdump role.
+    description: >
+      The kdump role configures kernel crash dump (kdump) on the managed
+      host. It installs required packages, writes kdump configuration,
+      enables the kdump service, and manages crashkernel memory
+      reservation when needed.
+
+      The role replaces the existing kdump configuration on the managed
+      host. Previous settings not specified in the role variables will
+      be lost.
+    options:
+      kdump_target:
+        type: raw
+        default: null
+        description: >
+          The dump target for vmcore files, or `null` to write vmcore to
+          the root file system. When set, must be a dictionary with keys
+          `type` and `location`. The `type` key specifies the target
+          kind, such as `raw`, a file system type like `ext4`, `ssh`, or
+          `nfs`. The `location` key specifies the partition (by device
+          node name, label, or uuid), SSH server (`user@host`), or NFS
+          server address, depending on `type`.
+      kdump_path:
+        type: path
+        default: /var/crash
+        description: >
+          The path to which vmcore will be written. When `kdump_target`
+          is not `null`, this path is relative to that dump target.
+          Otherwise, it must be an absolute path in the root file
+          system.
+      kdump_core_collector:
+        type: str
+        default: null
+        description: >
+          A command to copy the vmcore. When `null`, the role uses
+          `makedumpfile` with options depending on `kdump_target.type`.
+      kdump_system_action:
+        type: str
+        default: reboot
+        choices:
+          - reboot
+          - halt
+          - poweroff
+          - shell
+        description: >
+          The action performed when dumping the core file fails
+          (`reboot`, `halt`, `poweroff`, or `shell`).
+      kdump_ssh_user:
+        type: str
+        default: null
+        description: >
+          The SSH user for SSH dump targets. Used when
+          `kdump_target.type` is `ssh` and `kdump_target.location` is
+          not set.
+      kdump_ssh_server:
+        type: str
+        default: null
+        description: >
+          The SSH server for SSH dump targets. Used when
+          `kdump_target.type` is `ssh` and `kdump_target.location` is
+          not set.
+      kdump_sshkey:
+        type: path
+        default: /root/.ssh/kdump_id_rsa
+        description: >
+          The path to the SSH private key used for SSH dump targets.
+      kdump_reboot_ok:
+        type: bool
+        default: false
+        description: >
+          Whether the role is allowed to reboot the managed host when a
+          reboot is required to reserve memory for the crash kernel.
+          When `false`, the role sets `kdump_reboot_required` to `true`
+          and fails instead of rebooting.
+      kdump_auto_reset_crashkernel:
+        type: bool
+        default: true
+        description: >
+          Whether to reset the kernel `crashkernel` value to the new
+          default when kexec-tools updates the default and existing
+          kernels use the old value.
+      kdump_dracut_args:
+        type: str
+        default: null
+        description: >
+          Extra dracut options to pass when rebuilding the kdump initrd.

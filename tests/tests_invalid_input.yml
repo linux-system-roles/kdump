@@ -1,0 +1,186 @@
+# SPDX-License-Identifier: MIT
+---
+# Verify meta/argument_specs.yml and tasks/assert_role_vars.yml reject bad
+# parameters. Each block runs the role expecting failure; rescue records
+# that outcome.
+- name: Verify invalid parameters are rejected
+  hosts: all
+  tasks:
+    - name: Run invalid input tests
+      block:
+        - name: Run role with valid defaults
+          ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+
+        - name: Run argument specs validation tests
+          when: ansible_version.full is version('2.11', '>=')
+          block:
+            - name: Argument specs reject non-boolean kdump_reboot_ok
+              block:
+                - name: Run role with non-boolean kdump_reboot_ok
+                  ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+                  vars:
+                    kdump_reboot_ok: not_a_bool
+              rescue:
+                - name: Mark invalid kdump_reboot_ok type rejected
+                  ansible.builtin.set_fact:
+                    __invalid_input_reboot_ok_type_failed: true
+
+            - name: Assert invalid kdump_reboot_ok type was rejected
+              ansible.builtin.assert:
+                that:
+                  - __invalid_input_reboot_ok_type_failed | default(false)
+                fail_msg: >-
+                  meta/argument_specs should reject kdump_reboot_ok values
+                  that are not booleans
+
+            - name: Argument specs reject non-boolean kdump_auto_reset_crashkernel
+              block:
+                - name: Run role with non-boolean kdump_auto_reset_crashkernel
+                  ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+                  vars:
+                    kdump_auto_reset_crashkernel: not_a_bool
+              rescue:
+                - name: Mark invalid kdump_auto_reset_crashkernel rejected
+                  ansible.builtin.set_fact:
+                    __invalid_input_auto_reset_type_failed: true
+
+            - name: Assert invalid kdump_auto_reset_crashkernel type was rejected
+              ansible.builtin.assert:
+                that:
+                  - __invalid_input_auto_reset_type_failed | default(false)
+                fail_msg: >-
+                  meta/argument_specs should reject
+                  kdump_auto_reset_crashkernel values that are not booleans
+
+            - name: Argument specs reject invalid kdump_system_action
+              block:
+                - name: Run role with invalid kdump_system_action
+                  ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+                  vars:
+                    kdump_system_action: invalid_action
+              rescue:
+                - name: Mark invalid kdump_system_action choice rejected
+                  ansible.builtin.set_fact:
+                    __invalid_input_system_action_choice_failed: true
+
+            - name: Assert invalid kdump_system_action choice was rejected
+              ansible.builtin.assert:
+                that:
+                  - __invalid_input_system_action_choice_failed | default(false)
+                fail_msg: >-
+                  meta/argument_specs should reject kdump_system_action
+                  values outside the allowed set
+
+        - name: Assert rejects kdump_target as a string
+          block:
+            - name: Run role with kdump_target as a string
+              ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                kdump_target: not_a_dict
+          rescue:
+            - name: Mark kdump_target string rejected
+              ansible.builtin.set_fact:
+                __invalid_input_target_string_failed: true
+
+        - name: Assert kdump_target as string failed validation
+          ansible.builtin.assert:
+            that:
+              - __invalid_input_target_string_failed | default(false)
+            fail_msg: >-
+              tasks/assert_role_vars.yml should reject kdump_target when
+              it is a string instead of null or a dictionary
+
+        - name: Assert rejects kdump_target as an integer
+          block:
+            - name: Run role with kdump_target as an integer
+              ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                kdump_target: 42
+          rescue:
+            - name: Mark kdump_target integer rejected
+              ansible.builtin.set_fact:
+                __invalid_input_target_int_failed: true
+
+        - name: Assert kdump_target as integer failed validation
+          ansible.builtin.assert:
+            that:
+              - __invalid_input_target_int_failed | default(false)
+            fail_msg: >-
+              tasks/assert_role_vars.yml should reject kdump_target when
+              it is an integer instead of null or a dictionary
+
+        - name: Assert rejects kdump_target dict containing unknown key
+          block:
+            - name: Run role with kdump_target dict containing unknown key
+              ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                kdump_target:
+                  type: raw
+                  location: /dev/sda1
+                  invalid_key_name: some_value
+          rescue:
+            - name: Mark kdump_target invalid key rejected
+              ansible.builtin.set_fact:
+                __invalid_input_target_bad_key_failed: true
+
+        - name: Assert kdump_target dict with invalid key failed validation
+          ansible.builtin.assert:
+            that:
+              - __invalid_input_target_bad_key_failed | default(false)
+            fail_msg: >-
+              tasks/assert_role_vars.yml should reject kdump_target dicts
+              containing keys not in the valid set
+
+        - name: Assert rejects kdump_target dict missing type
+          block:
+            - name: Run role with kdump_target dict missing type
+              ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                kdump_target:
+                  location: /dev/sda1
+          rescue:
+            - name: Mark kdump_target missing type rejected
+              ansible.builtin.set_fact:
+                __invalid_input_target_missing_type_failed: true
+
+        - name: Assert kdump_target dict missing type failed validation
+          ansible.builtin.assert:
+            that:
+              - __invalid_input_target_missing_type_failed | default(false)
+            fail_msg: >-
+              tasks/assert_role_vars.yml should reject kdump_target dicts
+              missing the required type field
+
+        - name: Assert rejects kdump_target.location as integer
+          block:
+            - name: Run role with kdump_target.location as integer
+              ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                kdump_target:
+                  type: raw
+                  location: 42
+          rescue:
+            - name: Mark kdump_target.location non-string rejected
+              ansible.builtin.set_fact:
+                __invalid_input_target_location_type_failed: true
+
+        - name: Assert kdump_target.location non-string failed validation
+          ansible.builtin.assert:
+            that:
+              - __invalid_input_target_location_type_failed | default(false)
+            fail_msg: >-
+              tasks/assert_role_vars.yml should reject kdump_target.location
+              when it is not a string
+
+      always:
+        - name: Clear test facts
+          ansible.builtin.set_fact:
+            __invalid_input_reboot_ok_type_failed:
+            __invalid_input_auto_reset_type_failed:
+            __invalid_input_system_action_choice_failed:
+            __invalid_input_target_string_failed:
+            __invalid_input_target_int_failed:
+            __invalid_input_target_bad_key_failed:
+            __invalid_input_target_missing_type_failed:
+            __invalid_input_target_location_type_failed:
+          tags: tests::cleanup

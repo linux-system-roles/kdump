@@ -2,6 +2,9 @@
 - name: Ensure ansible_facts used by role
   include_tasks: set_vars.yml
 
+- name: Validate role parameters
+  ansible.builtin.include_tasks: assert_role_vars.yml
+
 - name: Install required packages
   package:
     name: "{{ __kdump_packages }}"
