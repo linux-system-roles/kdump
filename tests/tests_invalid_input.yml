@@ -5,6 +5,8 @@
 # that outcome.
 - name: Verify invalid parameters are rejected
   hosts: all
+  vars:
+      kdump_reboot_ok: true
   tasks:
     - name: Run invalid input tests
       block:
