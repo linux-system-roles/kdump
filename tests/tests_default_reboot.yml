@@ -73,9 +73,9 @@
       include_tasks: tasks/check_header.yml
       vars:
         __fingerprint: "system_role:kdump"
-        __file: /etc/kdump.conf
+        __file: "{{ __kdump_conf_file }}"
 
-    - name: See if el9 or later, or el7 or el8
+    - name: See if el9 or later, el7 or el8, or Suse
       set_fact:
         is_el9: "{{
           ansible_facts['distribution'] in ['RedHat', 'CentOS', 'Fedora']
@@ -83,6 +83,7 @@
         is_el7_or_el8: "{{
           ansible_facts['distribution'] in ['RedHat', 'CentOS']
           and ansible_facts['distribution_major_version'] | int in [7, 8] }}"
+        is_suse: "{{ ansible_facts['os_family'] == 'Suse' }}"
 
     - name: Check for crashkernel, grubby settings
       when: is_el9 or is_el7_or_el8
@@ -127,10 +128,44 @@
           vars:
             pattern: ^args=.* crashkernel={{ __crashkernel.stdout }}( |"|$)
 
+    - name: Check the generated sysconfig and the reserved crashkernel (Suse)
+      when: is_suse | bool
+      block:
+        # Source the file, the way kdump reads it
+        - name: Read the settings kdump will actually see
+          shell:
+            executable: /bin/bash
+            cmd: |
+              set -euo pipefail
+              . /etc/sysconfig/kdump
+              echo "$KDUMP_SAVEDIR"
+          register: __suse_savedir
+          changed_when: false
+          check_mode: false
+
+        - name: Read the crash kernel reservation the running kernel made
+          slurp:
+            path: /sys/kernel/kexec_crash_size
+          register: __suse_crash_size
+
+        - name: Assert the dump target is set and crash kernel memory is reserved
+          assert:
+            that:
+              - __suse_savedir.stdout == 'file://' ~ kdump_path
+              - __suse_crash_size.content | b64decode | int > 0
+
     - name: Change parameters and run the role again
       set_fact:
         kdump_auto_reset_crashkernel: false
         kdump_dracut_args: --print-cmdline
+        # Only read on SUSE
+        kdump_sysconfig:
+          KDUMP_DUMPLEVEL: 16
+
+    - name: Ask for a debug shell when dumping fails (Suse)
+      set_fact:
+        kdump_system_action: shell
+      when: is_suse | bool
 
     - name: Run the role again with new parameters
       include_tasks: tasks/run_role_with_clear_facts.yml
@@ -175,3 +210,22 @@
           changed_when: false
           vars:
             pattern: ^args=.* crashkernel={{ __crashkernel.stdout }}( |"|$)
+
+    - name: Check kdump_sysconfig and kdump_system_action reached the sysconfig (Suse)
+      when: is_suse | bool
+      block:
+        - name: Read the settings kdump will see after the second run
+          shell:
+            executable: /bin/bash
+            cmd: |
+              set -euo pipefail
+              . /etc/sysconfig/kdump
+              printf '%s\n' "$KDUMP_DUMPLEVEL" "$KDUMP_CONTINUE_ON_ERROR"
+          register: __suse_settings
+          changed_when: false
+          check_mode: false
+
+        - name: Assert the passthrough value and the failure action
+          assert:
+            that:
+              - __suse_settings.stdout_lines == ['16', 'false']

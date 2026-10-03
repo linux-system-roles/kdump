@@ -55,3 +55,4 @@ __kdump_is_rh_distro_10: "{{ __kdump_is_rh_distro and ansible_facts['distributio
 __kdump_service: kdump
 
 __kdump_conf_file: /etc/kdump.conf
+__kdump_conf_template: "{{ __kdump_conf_file | basename }}.j2"

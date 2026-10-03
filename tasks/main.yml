@@ -29,7 +29,7 @@
 
 - name: Generate kdump configuration file
   template:
-    src: "{{ __kdump_conf_file | basename }}.j2"
+    src: "{{ __kdump_conf_template }}"
     dest: "{{ __kdump_conf_file }}"
     backup: true
     mode: "{{ __kdump_conf.stat.mode | d('0644') }}"
@@ -60,6 +60,14 @@
       command: grubby --args=crashkernel=auto --update-kernel=ALL
       when: ansible_facts['distribution_major_version'] | int <= 8
       changed_when: true
+
+# Same invocation as kdump-commandline.service
+- name: Use kdumptool commandline to update crashkernel if needed
+  command: /usr/sbin/kdumptool commandline -c -U
+  when:
+    - kdump_reboot_required | bool
+    - ansible_facts['os_family'] == 'Suse'
+  changed_when: true
 
 - name: Fail if reboot is required and kdump_reboot_ok is false
   fail:
