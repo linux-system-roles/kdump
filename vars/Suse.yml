@@ -1,0 +1,28 @@
+---
+__kdump_base_packages:
+  - iproute2  # for fact gathering for ip facts
+  - kdump  # provides /usr/sbin/kdumptool
+  - kexec-tools
+  - openssh-clients
+
+# without nfs-client, mkdumprd silently builds an initrd that cannot mount nfs
+__kdump_target_extra_packages:
+  nfs:
+    - nfs-client
+
+__kdump_packages: "{{ __kdump_base_packages +
+  (__kdump_target_extra_packages[kdump_target.type | d('none')] | d([])) }}"
+
+__kdump_conf_file: /etc/sysconfig/kdump
+__kdump_conf_template: sysconfig-kdump.j2
+
+# kdumptool commandline requires kdump 2.0.19, first shipped in 16
+__kdump_minimum_distribution_major_version: 16
+
+# settings the role manages itself, which kdump_sysconfig may not set
+__kdump_sysconfig_reserved_keys:
+  - KDUMP_SAVEDIR
+  - KDUMP_SSH_IDENTITY
+  - KDUMP_HOST_KEY
+  - KDUMP_CONTINUE_ON_ERROR
+  - KDUMP_UPDATE_BOOTLOADER

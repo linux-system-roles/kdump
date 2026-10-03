@@ -46,3 +46,30 @@
   when:
     - kdump_target is mapping
     - kdump_target.location is defined
+
+# The checks below run only where vars/ declares the platform's limits
+- name: Assert this platform is new enough for the role to configure kdump
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['distribution_major_version'] | int
+        >= __kdump_minimum_distribution_major_version | int
+    fail_msg: >-
+      This role cannot configure kdump on {{ ansible_facts['distribution'] }}
+      {{ ansible_facts['distribution_major_version'] }}. It needs
+      {{ ansible_facts['distribution'] }}
+      {{ __kdump_minimum_distribution_major_version }} or later, because the
+      crash kernel reservation has no mechanism before that.
+  when: __kdump_minimum_distribution_major_version is defined
+
+- name: Assert kdump_sysconfig does not set what the role already derives
+  ansible.builtin.assert:
+    that:
+      - kdump_sysconfig.keys() | list | intersect(__kdump_sysconfig_reserved_keys) | length == 0
+    fail_msg: >-
+      kdump_sysconfig may not set
+      {{ kdump_sysconfig.keys() | list | intersect(__kdump_sysconfig_reserved_keys) | join(', ') }},
+      which the role derives from its own variables. Use those instead.
+  when:
+    - __kdump_sysconfig_reserved_keys is defined
+    - kdump_sysconfig is defined
+    - kdump_sysconfig is mapping

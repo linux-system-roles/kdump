@@ -14,6 +14,7 @@ following configuration file:
 
 * `/etc/kdump.conf` (RedHat like OS)
 * `/etc/default/kdump-tools` (Ubuntu only, for now)
+* `/etc/sysconfig/kdump` (SUSE)
 
 ## Requirements
 
@@ -86,6 +87,11 @@ with options depending on the `kdump_target.type`.
 **kdump_dracut_args**:
   Pass extra dracut options when rebuilding kdump initrd.
 
+**kdump_sysconfig**:
+  Extra `KDUMP_*` settings for `/etc/sysconfig/kdump`. SUSE only, see [SUSE](#suse).
+
+  Default: `{}`
+
 **kdump_reboot_ok**: If you run the role on a managed node that does not have
 memory reserved for crash kernel, i.e. the file `/sys/kernel/kexec_crash_size`
 contains `0`, it might be required to reboot the managed node to configure kdump.
@@ -97,6 +103,31 @@ reboot the system if required, set this variable to `true`. You do not need to
 re-execute the role after boot.
 
 Default: `false`
+
+## SUSE
+
+Requires SLE 16 or Leap 16 or later. The role fails on older releases, whose
+`kdumptool` cannot reserve crash kernel memory.
+
+Settings the role does not manage can be set with `kdump_sysconfig`, for example:
+
+```yaml
+kdump_sysconfig:
+  KDUMP_DUMPLEVEL: 31
+  KDUMP_KEEP_OLD_DUMPS: 5
+```
+
+`kdump_sysconfig` may not set `KDUMP_SAVEDIR`, `KDUMP_SSH_IDENTITY`,
+`KDUMP_HOST_KEY`, `KDUMP_CONTINUE_ON_ERROR` or `KDUMP_UPDATE_BOOTLOADER`, which
+the role manages itself.
+
+On SUSE:
+
+* `kdump_target.type` must be `ssh` or `nfs`.
+* `kdump_system_action: shell` opens a debug shell when saving the dump fails;
+  any other value continues and reboots.
+* `kdump_core_collector`, `kdump_dracut_args` and `kdump_auto_reset_crashkernel`
+  have no effect.
 
 ## Ubuntu
 
