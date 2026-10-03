@@ -88,3 +88,11 @@ argument_specs:
         default: null
         description: >
           Extra dracut options to pass when rebuilding the kdump initrd.
+      kdump_sysconfig:
+        type: dict
+        default: {}
+        description: >
+          Additional `KDUMP_*` settings to write to `/etc/sysconfig/kdump`,
+          for the settings this role does not model. SUSE only, and
+          ignored elsewhere. It may not carry a setting the role derives
+          from its own variables.

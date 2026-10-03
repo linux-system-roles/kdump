@@ -1,0 +1,29 @@
+{{ ansible_managed | comment }}
+{{ "system_role:kdump" | comment(prefix="", postfix="") }}
+{#- kdump sources this file as shell, so every value is quoted #}
+{% set __path = kdump_path if kdump_path.startswith('/') else '/' ~ kdump_path %}
+{% if not kdump_target %}
+{% set __savedir = 'file://' ~ __path %}
+{% elif kdump_target.type == 'ssh' %}
+{% set __savedir = 'ssh://' ~ kdump_target.location | d(kdump_ssh_user ~ '@' ~ kdump_ssh_server) ~ __path %}
+{% elif kdump_target.type == 'nfs' %}
+{#- nfs URLs take host/path, not host:/path #}
+{% set __savedir = 'nfs://' ~ kdump_target.location | regex_replace(':/', '/') ~ __path %}
+{% endif %}
+
+KDUMP_SAVEDIR={{ __savedir | quote }}
+{% if kdump_target and kdump_target.type == 'ssh' %}
+KDUMP_SSH_IDENTITY={{ kdump_sshkey | quote }}
+{% if __kdump_serverpubkey is defined %}
+{# kdump does not read /etc/ssh/ssh_known_hosts, so the host key must be given #}
+KDUMP_HOST_KEY={{ (__kdump_serverpubkey.content | b64decode).split()[:2] | join(' ') | quote }}
+{% endif %}
+{% endif %}
+
+{# kdump_system_action is the action on dump failure #}
+KDUMP_CONTINUE_ON_ERROR={{ (kdump_system_action == 'shell') | ternary('false', 'true') | quote }}
+
+{# kdump expects lowercase true/false #}
+{% for __key, __value in (kdump_sysconfig | d({}, true) | dictsort) %}
+{{ __key }}={{ (__value | lower if __value is boolean else __value) | quote }}
+{% endfor %}
