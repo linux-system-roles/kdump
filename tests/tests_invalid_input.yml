@@ -184,6 +184,7 @@
               - distribution
 
         - name: Assert rejects kdump_sysconfig that sets a derived setting
+          when: is_suse
           block:
             - name: Run role with kdump_sysconfig setting KDUMP_SAVEDIR
               ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
