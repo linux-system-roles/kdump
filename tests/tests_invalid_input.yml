@@ -188,7 +188,7 @@
           block:
             - name: Run role with kdump_sysconfig setting KDUMP_SAVEDIR
               ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
-              when: ansible_facts['os_family'] == 'Suse'
+              when: is_suse
               vars:
                 kdump_sysconfig:
                   KDUMP_SAVEDIR: file:///somewhere/else
