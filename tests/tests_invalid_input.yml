@@ -206,7 +206,7 @@
               tasks/assert_role_vars.yml should reject a kdump_sysconfig key
               that the role derives from its own variables. Got -
               {{ __invalid_input_sysconfig_reserved_failed | default('no failure') }}
-          when: ansible_facts['os_family'] == 'Suse'
+          when: is_suse
 
       always:
         - name: Clear test facts
