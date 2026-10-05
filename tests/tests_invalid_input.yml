@@ -10,6 +10,10 @@
   tasks:
     - name: Run invalid input tests
       block:
+        - name: See if we are running on SUSE
+          ansible.builtin.set_fact:
+            is_suse: "{{ ansible_facts['os_family'] == 'Suse' }}"
+
         - name: Run role with valid defaults
           ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
 
@@ -174,21 +178,11 @@
               tasks/assert_role_vars.yml should reject kdump_target.location
               when it is not a string
 
-        # The platform conditions are per task, not per block, because
-        # run_role_with_clear_facts.yml clears the facts they read
-        - name: Gather the facts the platform conditions below need
-          ansible.builtin.setup:
-            gather_subset:
-              - "!all"
-              - "!min"
-              - distribution
-
         - name: Assert rejects kdump_sysconfig that sets a derived setting
           when: is_suse
           block:
             - name: Run role with kdump_sysconfig setting KDUMP_SAVEDIR
               ansible.builtin.include_tasks: tasks/run_role_with_clear_facts.yml
-              when: is_suse
               vars:
                 kdump_sysconfig:
                   KDUMP_SAVEDIR: file:///somewhere/else
