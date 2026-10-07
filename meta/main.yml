@@ -24,6 +24,7 @@ galaxy_info:
     - el10
     - fedora
     - kdump
+    - leap-16.0
     - redhat
     - rhel
     - sles
