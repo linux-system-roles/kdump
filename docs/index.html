@@ -144,6 +144,7 @@ id="toc-collection-requirements">Collection requirements</a></li>
 </ul></li>
 <li><a href="#role-variables" id="toc-role-variables">Role
 Variables</a></li>
+<li><a href="#suse" id="toc-suse">SUSE</a></li>
 <li><a href="#ubuntu" id="toc-ubuntu">Ubuntu</a></li>
 <li><a href="#ansible-facts-returned-by-the-role"
 id="toc-ansible-facts-returned-by-the-role">Ansible Facts Returned by
@@ -162,6 +163,7 @@ following configuration file:</p>
 <ul>
 <li><code>/etc/kdump.conf</code> (RedHat like OS)</li>
 <li><code>/etc/default/kdump-tools</code> (Ubuntu only, for now)</li>
+<li><code>/etc/sysconfig/kdump</code> (SUSE)</li>
 </ul>
 <h1 id="requirements">Requirements</h1>
 <p>See below</p>
@@ -213,6 +215,10 @@ the default crashkernel value and existing kernels using the old default
 kernel crashkernel value.</p>
 <p><strong>kdump_dracut_args</strong>: Pass extra dracut options when
 rebuilding kdump initrd.</p>
+<p><strong>kdump_sysconfig</strong>: Extra <code>KDUMP_*</code> settings
+for <code>/etc/sysconfig/kdump</code>. SUSE only, see <a
+href="#suse">SUSE</a>.</p>
+<p>Default: <code>{}</code></p>
 <p><strong>kdump_reboot_ok</strong>: If you run the role on a managed
 node that does not have memory reserved for crash kernel, i.e. the file
 <code>/sys/kernel/kexec_crash_size</code> contains <code>0</code>, it
@@ -224,17 +230,41 @@ reboot the managed node when needed. If you want the role to reboot the
 system if required, set this variable to <code>true</code>. You do not
 need to re-execute the role after boot.</p>
 <p>Default: <code>false</code></p>
+<h1 id="suse">SUSE</h1>
+<p>Requires SLE 16 or Leap 16 or later. The role fails on older
+releases, whose <code>kdumptool</code> cannot reserve crash kernel
+memory.</p>
+<p>Settings the role does not manage can be set with
+<code>kdump_sysconfig</code>, for example:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kdump_sysconfig</span><span class="kw">:</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">KDUMP_DUMPLEVEL</span><span class="kw">:</span><span class="at"> </span><span class="dv">31</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">KDUMP_KEEP_OLD_DUMPS</span><span class="kw">:</span><span class="at"> </span><span class="dv">5</span></span></code></pre></div>
+<p><code>kdump_sysconfig</code> may not set <code>KDUMP_SAVEDIR</code>,
+<code>KDUMP_SSH_IDENTITY</code>, <code>KDUMP_HOST_KEY</code>,
+<code>KDUMP_CONTINUE_ON_ERROR</code> or
+<code>KDUMP_UPDATE_BOOTLOADER</code>, which the role manages itself.</p>
+<p>On SUSE:</p>
+<ul>
+<li>When <code>kdump_target</code> is set, its <code>type</code> must be
+<code>ssh</code> or <code>nfs</code>. Without it, the dump is saved
+locally under <code>kdump_path</code>.</li>
+<li><code>kdump_system_action: shell</code> opens a debug shell when
+saving the dump fails; any other value continues and reboots.</li>
+<li><code>kdump_core_collector</code>, <code>kdump_dracut_args</code>
+and <code>kdump_auto_reset_crashkernel</code> have no effect.</li>
+</ul>
 <h1 id="ubuntu">Ubuntu</h1>
 <p>To configure the default file-overwriting behavior, use for
 example:</p>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kdump_kdump_tools</span><span class="kw">:</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">USE_KDUMP</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">KDUMP_KERNEL</span><span class="kw">:</span><span class="at"> /var/lib/kdump/vmlinuz</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">KDUMP_INITRD</span><span class="kw">:</span><span class="at"> /var/lib/kdump/initrd.img</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">KDUMP_COREDIR</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;/var/crash&quot;</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">MAKEDUMP_ARGS</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;-c -d 31&quot;</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">KDUMP_FAIL_CMD</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;reboot -f&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kdump_kdump_tools</span><span class="kw">:</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">USE_KDUMP</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">KDUMP_KERNEL</span><span class="kw">:</span><span class="at"> /var/lib/kdump/vmlinuz</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">KDUMP_INITRD</span><span class="kw">:</span><span class="at"> /var/lib/kdump/initrd.img</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">KDUMP_COREDIR</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;/var/crash&quot;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">MAKEDUMP_ARGS</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;-c -d 31&quot;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">KDUMP_FAIL_CMD</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;reboot -f&quot;</span></span></code></pre></div>
 <h1 id="ansible-facts-returned-by-the-role">Ansible Facts Returned by
 the Role</h1>
 <p><strong>kdump_reboot_required</strong>: The role sets this fact if
