@@ -123,7 +123,8 @@ the role manages itself.
 
 On SUSE:
 
-* `kdump_target.type` must be `ssh` or `nfs`.
+* When `kdump_target` is set, its `type` must be `ssh` or `nfs`. Without it, the
+  dump is saved locally under `kdump_path`.
 * `kdump_system_action: shell` opens a debug shell when saving the dump fails;
   any other value continues and reboots.
 * `kdump_core_collector`, `kdump_dracut_args` and `kdump_auto_reset_crashkernel`
