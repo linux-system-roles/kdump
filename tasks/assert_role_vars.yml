@@ -61,6 +61,20 @@
       crash kernel reservation has no mechanism before that.
   when: __kdump_minimum_distribution_major_version is defined
 
+# Keys are written unquoted into a file that is sourced as shell
+- name: Assert kdump_sysconfig keys are plain KDUMP_* setting names
+  ansible.builtin.assert:
+    that:
+      - kdump_sysconfig.keys() | reject('match', 'KDUMP_[A-Z0-9_]') | list | length == 0
+      - kdump_sysconfig.keys() | map('regex_replace', '[A-Z0-9_]', '') | reject('equalto', '') | list | length == 0
+    fail_msg: >-
+      kdump_sysconfig keys must be KDUMP_* setting names made of A-Z, 0-9 and _,
+      got {{ kdump_sysconfig.keys() | list }}
+  when:
+    - __kdump_sysconfig_reserved_keys is defined
+    - kdump_sysconfig is defined
+    - kdump_sysconfig is mapping
+
 - name: Assert kdump_sysconfig does not set what the role already derives
   ansible.builtin.assert:
     that:
