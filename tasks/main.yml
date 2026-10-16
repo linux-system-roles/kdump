@@ -11,6 +11,42 @@
     state: present
     use: "{{ (__kdump_is_ostree | d(false)) |
              ternary('ansible.posix.rhel_rpm_ostree', omit) }}"
+  register: __kdump_package_result
+
+# A staged install reports ok on re-runs, so ask rpm (by provides) if it is live.
+- name: Check whether the packages are live on a transactional update system
+  command:  # noqa command-instead-of-module
+    argv: "{{ ['rpm', '-q', '--whatprovides'] + __kdump_packages }}"
+  register: __kdump_packages_live
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  when: __kdump_is_transactional
+
+- name: Handle reboot for transactional update systems
+  when:
+    - __kdump_is_transactional
+    - __kdump_package_result is changed or
+      (__kdump_packages_live.rc | d(0)) != 0
+  block:
+    - name: Notify user that reboot is needed to apply changes
+      debug:
+        msg: >
+          Reboot required to apply changes due to transactional updates.
+
+    - name: Reboot transactional update systems
+      reboot:
+        msg: Rebooting the system to apply transactional update changes.
+      when:
+        - kdump_transactional_update_reboot_ok is not none
+        - kdump_transactional_update_reboot_ok | bool
+
+    - name: Fail if reboot is needed and not set
+      fail:
+        msg: >
+          Reboot is required but not allowed. Please set 'kdump_transactional_update_reboot_ok' to proceed.
+      when:
+        - kdump_transactional_update_reboot_ok is none
 
 - name: Ensure that kdump is enabled
   service:
@@ -60,6 +96,16 @@
       command: grubby --args=crashkernel=auto --update-kernel=ALL
       when: ansible_facts['distribution_major_version'] | int <= 8
       changed_when: true
+
+- name: Fail if a transactional update system has no crash kernel memory
+  fail:
+    msg: >-
+      No memory is reserved for the crash kernel, and the boot loader of a
+      transactional update system cannot be changed in place. Run
+      'transactional-update setup-kdump', reboot, and re-execute the role.
+  when:
+    - __kdump_is_transactional
+    - kdump_reboot_required | bool
 
 # Same invocation as kdump-commandline.service
 - name: Use kdumptool commandline to update crashkernel if needed
