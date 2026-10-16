@@ -104,6 +104,17 @@ re-execute the role after boot.
 
 Default: `false`
 
+**kdump_transactional_update_reboot_ok**: This variable is used to handle
+reboots required by transactional updates. If a transactional update requires
+a reboot, the role will proceed with the reboot if
+`kdump_transactional_update_reboot_ok` is set to `true`. If set to `false`, the
+role will notify the user that a reboot is required, allowing for custom
+handling of the reboot requirement. If this variable is not set, the role will
+fail to ensure the reboot requirement is not overlooked. For non-transactional
+update systems, this variable is ignored.
+
+Default: `null`
+
 ## SUSE
 
 Requires SLE 16 or Leap 16 or later. The role fails on older releases, whose
@@ -129,6 +140,11 @@ On SUSE:
   any other value continues and reboots.
 * `kdump_core_collector`, `kdump_dracut_args` and `kdump_auto_reset_crashkernel`
   have no effect.
+* On transactional update systems, the role cannot change the boot loader, so
+  memory for the crash kernel must already be reserved, for example by
+  `transactional-update setup-kdump` and a reboot. Otherwise the role fails.
+  On these systems the role also sets `KDUMP_UPDATE_BOOTLOADER="false"`, as
+  `setup-kdump` does, and `kdump_reboot_ok` has no effect.
 
 ## Ubuntu
 
@@ -147,8 +163,8 @@ kdump_kdump_tools:
 ## Ansible Facts Returned by the Role
 
 **kdump_reboot_required**: The role sets this fact if the managed node requires
-reboot to complete kdump configuration. Re-execute the role after boot to ensure
-that kdump is working.
+reboot to reserve memory for the crash kernel. Re-execute the role after boot
+to ensure that kdump is working.
 
 ## rpm-ostree
 

@@ -47,6 +47,17 @@
     - kdump_target is mapping
     - kdump_target.location is defined
 
+- name: Assert kdump_transactional_update_reboot_ok is null or a boolean
+  ansible.builtin.assert:
+    that:
+      - >-
+        (kdump_transactional_update_reboot_ok is none)
+        or (kdump_transactional_update_reboot_ok is sameas true)
+        or (kdump_transactional_update_reboot_ok is sameas false)
+    fail_msg: >-
+      kdump_transactional_update_reboot_ok must be null or a boolean,
+      got {{ kdump_transactional_update_reboot_ok | type_debug }}
+
 # The checks below run only where vars/ declares the platform's limits
 - name: Assert this platform is new enough for the role to configure kdump
   ansible.builtin.assert:

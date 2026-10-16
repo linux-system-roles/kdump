@@ -96,3 +96,13 @@ argument_specs:
           for the settings this role does not model. SUSE only, and
           ignored elsewhere. It may not carry a setting the role derives
           from its own variables.
+      kdump_transactional_update_reboot_ok:
+        type: raw
+        default: null
+        description: >
+          Whether to permit reboots required by transactional updates. Set
+          to `true` to allow reboots, `false` to disallow reboots, or
+          leave unset so that the role will fail to ensure the reboot
+          requirement is not overlooked. Accepts a boolean value or `null`.
+          Only managed nodes whose OS uses transactional updates read it;
+          on other systems it is ignored.

@@ -22,6 +22,10 @@ KDUMP_HOST_KEY={{ (__kdump_serverpubkey.content | b64decode).split()[:2] | join(
 
 {# kdump_system_action is the action on dump failure #}
 KDUMP_CONTINUE_ON_ERROR={{ (kdump_system_action == 'shell') | ternary('false', 'true') | quote }}
+{% if __kdump_is_transactional %}
+{# the boot loader is read-only here; transactional-update setup-kdump sets the same #}
+KDUMP_UPDATE_BOOTLOADER="false"
+{% endif %}
 
 {# kdump expects lowercase true/false #}
 {% for __key, __value in (kdump_sysconfig | d({}, true) | dictsort) %}
