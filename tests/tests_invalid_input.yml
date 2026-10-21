@@ -6,7 +6,13 @@
 - name: Verify invalid parameters are rejected
   hosts: all
   vars:
-      kdump_reboot_ok: true
+    kdump_reboot_ok: true
+    __invalid_input_failure_messages: >-
+      {{ ([ansible_failed_result.msg | default(''),
+           ansible_failed_result.msg.msg | default('')]
+          + (ansible_failed_result.results | default([])
+             | map(attribute='msg') | map('default', '') | list))
+         | join(' ') }}
   tasks:
     - name: Run invalid input tests
       block:
@@ -30,6 +36,11 @@
                 - name: Mark invalid kdump_reboot_ok type rejected
                   ansible.builtin.set_fact:
                     __invalid_input_reboot_ok_type_failed: true
+                  when: >-
+                    "argument 'kdump_reboot_ok' is of type" in
+                    __invalid_input_failure_messages and
+                    'we were unable to convert to bool' in
+                    __invalid_input_failure_messages
 
             - name: Assert invalid kdump_reboot_ok type was rejected
               ansible.builtin.assert:
@@ -49,6 +60,11 @@
                 - name: Mark invalid kdump_auto_reset_crashkernel rejected
                   ansible.builtin.set_fact:
                     __invalid_input_auto_reset_type_failed: true
+                  when: >-
+                    "argument 'kdump_auto_reset_crashkernel' is of type" in
+                    __invalid_input_failure_messages and
+                    'we were unable to convert to bool' in
+                    __invalid_input_failure_messages
 
             - name: Assert invalid kdump_auto_reset_crashkernel type was rejected
               ansible.builtin.assert:
@@ -68,6 +84,10 @@
                 - name: Mark invalid kdump_system_action choice rejected
                   ansible.builtin.set_fact:
                     __invalid_input_system_action_choice_failed: true
+                  when: >-
+                    'value of kdump_system_action must be one of: reboot, halt, poweroff, shell'
+                    in __invalid_input_failure_messages and
+                    'got: invalid_action' in __invalid_input_failure_messages
 
             - name: Assert invalid kdump_system_action choice was rejected
               ansible.builtin.assert:
@@ -87,6 +107,11 @@
             - name: Mark kdump_target string rejected
               ansible.builtin.set_fact:
                 __invalid_input_target_string_failed: true
+              when: >-
+                'kdump_target must be null or a dictionary, got str'
+                in __invalid_input_failure_messages or
+                'kdump_target must be null or a dictionary, got AnsibleUnicode'
+                in __invalid_input_failure_messages
 
         - name: Assert kdump_target as string failed validation
           ansible.builtin.assert:
@@ -106,6 +131,9 @@
             - name: Mark kdump_target integer rejected
               ansible.builtin.set_fact:
                 __invalid_input_target_int_failed: true
+              when: >-
+                'kdump_target must be null or a dictionary, got int'
+                in __invalid_input_failure_messages
 
         - name: Assert kdump_target as integer failed validation
           ansible.builtin.assert:
@@ -128,6 +156,9 @@
             - name: Mark kdump_target invalid key rejected
               ansible.builtin.set_fact:
                 __invalid_input_target_bad_key_failed: true
+              when: >-
+                'kdump_target contains invalid keys: invalid_key_name'
+                in __invalid_input_failure_messages
 
         - name: Assert kdump_target dict with invalid key failed validation
           ansible.builtin.assert:
@@ -148,6 +179,9 @@
             - name: Mark kdump_target missing type rejected
               ansible.builtin.set_fact:
                 __invalid_input_target_missing_type_failed: true
+              when: >-
+                'kdump_target.type must be a string, got str'
+                in __invalid_input_failure_messages
 
         - name: Assert kdump_target dict missing type failed validation
           ansible.builtin.assert:
@@ -169,6 +203,9 @@
             - name: Mark kdump_target.location non-string rejected
               ansible.builtin.set_fact:
                 __invalid_input_target_location_type_failed: true
+              when: >-
+                'kdump_target.location must be a string, got int'
+                in __invalid_input_failure_messages
 
         - name: Assert kdump_target.location non-string failed validation
           ansible.builtin.assert:
@@ -189,18 +226,18 @@
           rescue:
             - name: Mark kdump_sysconfig reserved key rejected
               ansible.builtin.set_fact:
-                __invalid_input_sysconfig_reserved_failed: "{{ ansible_failed_result.msg }}"
+                __invalid_input_sysconfig_reserved_failed: true
+              when: >-
+                'kdump_sysconfig may not set KDUMP_SAVEDIR'
+                in __invalid_input_failure_messages
 
         - name: Assert the reserved kdump_sysconfig key was rejected
           ansible.builtin.assert:
             that:
-              - >-
-                'kdump_sysconfig may not set KDUMP_SAVEDIR'
-                in __invalid_input_sysconfig_reserved_failed | default('')
+              - __invalid_input_sysconfig_reserved_failed | default(false)
             fail_msg: >-
               tasks/assert_role_vars.yml should reject a kdump_sysconfig key
-              that the role derives from its own variables. Got -
-              {{ __invalid_input_sysconfig_reserved_failed | default('no failure') }}
+              that the role derives from its own variables
           when: is_suse
 
       always:
