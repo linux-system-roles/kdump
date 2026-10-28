@@ -230,6 +230,16 @@ reboot the managed node when needed. If you want the role to reboot the
 system if required, set this variable to <code>true</code>. You do not
 need to re-execute the role after boot.</p>
 <p>Default: <code>false</code></p>
+<p><strong>kdump_transactional_update_reboot_ok</strong>: This variable
+is used to handle reboots required by transactional updates. If a
+transactional update requires a reboot, the role will proceed with the
+reboot if <code>kdump_transactional_update_reboot_ok</code> is set to
+<code>true</code>. If set to <code>false</code>, the role will notify
+the user that a reboot is required, allowing for custom handling of the
+reboot requirement. If this variable is not set, the role will fail to
+ensure the reboot requirement is not overlooked. For non-transactional
+update systems, this variable is ignored.</p>
+<p>Default: <code>null</code></p>
 <h1 id="suse">SUSE</h1>
 <p>Requires SLE 16 or Leap 16 or later. The role fails on older
 releases, whose <code>kdumptool</code> cannot reserve crash kernel
@@ -253,6 +263,13 @@ locally under <code>kdump_path</code>.</li>
 saving the dump fails; any other value continues and reboots.</li>
 <li><code>kdump_core_collector</code>, <code>kdump_dracut_args</code>
 and <code>kdump_auto_reset_crashkernel</code> have no effect.</li>
+<li>On transactional update systems, the role cannot change the boot
+loader, so memory for the crash kernel must already be reserved, for
+example by <code>transactional-update setup-kdump</code> and a reboot.
+Otherwise the role fails. On these systems the role also sets
+<code>KDUMP_UPDATE_BOOTLOADER="false"</code>, as
+<code>setup-kdump</code> does, and <code>kdump_reboot_ok</code> has no
+effect.</li>
 </ul>
 <h1 id="ubuntu">Ubuntu</h1>
 <p>To configure the default file-overwriting behavior, use for
@@ -268,7 +285,7 @@ class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb7-1"><a href="
 <h1 id="ansible-facts-returned-by-the-role">Ansible Facts Returned by
 the Role</h1>
 <p><strong>kdump_reboot_required</strong>: The role sets this fact if
-the managed node requires reboot to complete kdump configuration.
+the managed node requires reboot to reserve memory for the crash kernel.
 Re-execute the role after boot to ensure that kdump is working.</p>
 <h1 id="rpm-ostree">rpm-ostree</h1>
 <p>See README-ostree.md</p>
