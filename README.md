@@ -62,7 +62,7 @@ Similarly for `nfs`, `location` points to an nfs server:
 
 ```yaml
   type: nfs
-  location: nfs.example.com
+  location: nfs.example.com:/export
 ```
 
 Only the `ssh` type is considered stable, support for the other types
