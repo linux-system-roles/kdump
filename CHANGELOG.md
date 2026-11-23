@@ -1,6 +1,37 @@
 Changelog
 =========
 
+[1.9.0] - 2026-11-23
+--------------------
+
+### New Features
+
+- feat: Add SLE16+ support (#323)
+- feat: Support transactional update systems (#329)
+
+### Other Changes
+
+- ci: no CI test by default - implement slash commands for CI tests [citest_skip] (#317)
+- ci: ansible-test-milestone is now version 2.23 - update sanity ignore files (#318)
+- ci: allow lsr org members to run ci tests (#319)
+- ci: Run Dependabot monthly and group changes in a single PR (#322)
+- ci: bump tox-lsr version 3.21.0, myrotvorets/set-commit-status-action, support leap-16.0 (#324)
+- ci: use shared actions and lock workflow dependencies (#325)
+- ci: use shared actions and lock workflow dependencies (#326)
+- ci: Use order 10 for centos vault task so that it runs first (#327)
+- test: check invalid inputs for correct error message (#328)
+- docs: add AI policy; update setup-python, codeql actions (#330)
+- ci: retry centos vault repo failures using new package_retry yum/dnf plugin (#331)
+- docs: tag markdown plain text blocks correctly (#332)
+- ci: Use a fixed 5 minute backoff for CentOS vault repos (#333)
+- ci: support Fedora 45, Ansible 2.22; drop Fedora 43 (#334)
+- ci: use ubuntu 24.04 for test envs that use py39 (#335)
+- ci: use ubuntu 26.04 with podman 5.x and disable apparmor restriction (#336)
+- docs: show the export path in the nfs target example (#337)
+- docs: add AGENTS.md with shared developer conventions from .github (#338)
+- docs: remove extra blank lines from .coderabbit.yaml (#339)
+- ci: update tox-lsr for support for tests/module_utils (#340)
+
 [1.8.0] - 2026-09-17
 --------------------
 
